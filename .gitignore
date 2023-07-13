@@ -1,0 +1,10 @@
+__pycache__/
+
+.ipynb_checkpoints/
+.ipynb_checkpoints
+
+src/cosmic_flag_rfi_kurtosis.egg-info/
+src/cosmic_flag_rfi_kurtosis.egg-info
+src/dist/
+src/dist
+src/pyproject.toml
