@@ -127,3 +127,5 @@ def get_mask_kurtosis(wf_in, n_divs=256, threshold=50):
     # bin_mask: The mask used to generate masked_kurts -- Masks the frequency *bins*
     # freq_mask: A mask to be used to block out the *actual* frequencies, rather than the frequency *bins*
     return flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask
+
+print('hi')
