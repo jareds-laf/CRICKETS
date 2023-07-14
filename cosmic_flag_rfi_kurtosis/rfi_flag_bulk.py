@@ -1,10 +1,11 @@
 import argparse
-from analysis_functions import get_mask_kurtosis
+# from analysis_functions import get_mask_kurtosis
 
 parser = argparse.ArgumentParser(
                     description='Flag RFI heavy frequency channels based on the kurtosis of each channel.')
 
-parser.add_argument('filename', help='Path to input filterbank file', required=True)
+parser.add_argument('--filename', help='Path to input filterbank file', required=False)
+parser.add_argument('--ohi', help='Print "Hello world!"!', action='store_true', required=False)
 # parser.add_argument('filename', help='Path to input filterbank file')
 
 args = parser.parse_args()
@@ -13,6 +14,7 @@ args = parser.parse_args()
 
 print("Argument values:")
 print(args.filename, type(args.filename))
+print(args.ohi, type(args.ohi))
 
 
 
