@@ -1,3 +1,4 @@
 # cosmic_flag_rfi_kurtosis
 
-Test. Very exciting stuff.
+
+This package is designed to flag heavy RFI frequency bins in data that comes from COSMIC.
