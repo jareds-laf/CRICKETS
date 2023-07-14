@@ -12,7 +12,7 @@ args = parser.parse_args()
 
 
 print("Argument values:")
-print(args.filename, type(args.filename)
+print(args.filename, type(args.filename))
 
 
 
