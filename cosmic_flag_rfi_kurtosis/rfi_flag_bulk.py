@@ -4,7 +4,7 @@ import argparse
 parser = argparse.ArgumentParser(
                     description='Flag RFI heavy frequency channels based on the kurtosis of each channel.')
 
-parser.add_argument('--filename', help='Path to input filterbank file', required=False)
+parser.add_argument('filename', help='Path to input filterbank file', required=True)
 parser.add_argument('--ohi', help='Print "Hello world!"!', action='store_true', required=False)
 # parser.add_argument('filename', help='Path to input filterbank file')
 
