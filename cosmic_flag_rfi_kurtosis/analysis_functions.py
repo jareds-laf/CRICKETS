@@ -14,11 +14,11 @@ import pandas as pd
 
 def get_tavg_kurtosis(wf_in, n_divs=256):
     # This function grabs the kurtosis of channels of a specified size for a blimpy waterfall object
-    
-    # wf_in: Specified blimpy waterfall object
-    # n_divs: Number of divisions to break wf_in into
-        # 32 is the correct number of channels to break a waterfall into assuming the frequency range
-        # of the waterfall is 32 MHz
+    # Inputs:
+        # wf_in: Specified blimpy waterfall object
+        # n_divs: Number of divisions to break wf_in into
+            # 32 is the correct number of channels to break a waterfall into assuming the frequency range
+            # of the waterfall is 32 MHz
         
 #     np.set_printoptions(threshold=4)
 
@@ -28,17 +28,21 @@ def get_tavg_kurtosis(wf_in, n_divs=256):
         freqs_flipped = wf_in.get_freqs()[::-1]
     
     # Time-average the power
-    pows_mean_flipped = np.mean(pows_flipped, axis=0)[0]    
+    pows_mean_flipped = np.mean(pows_flipped, axis=0)[0]   
 
     # Split frequency and time-averaged power into n_divs channels
     freqs = np.array_split(freqs_flipped, n_divs)
     pows_mean = np.array_split(pows_mean_flipped, n_divs)
     
+    # So...
+    # pows_flipped is all of the powers in increasing order,
+    # freqs_flipped is all of the frequencies in increasing order
+    
     # Get kurtosis of all channels
     kurts_list = []
     
     for i, division in enumerate(pows_mean):
-        kurts_list.append(kurtosis(division/(10**9))) # Rescaling data so that kurtosis != inf ever
+        kurts_list.append(kurtosis(division/(10**9))) # Rescaling data so that kurtosis != inf ever (hopefully)
     
     kurts = np.array(kurts_list, dtype=np.float64)
     
@@ -57,16 +61,17 @@ def get_tavg_kurtosis(wf_in, n_divs=256):
 
     # bins: All frequency bins for the frequency range of the waterfall
     # kurts: Kurtosis of all frequency bins
-    # pows_mean_flipped: Time-averaged power in each frequency bin
-    return bins, kurts, pows_mean_flipped
+    # pows_mean: Time-averaged power of each frequency bin
+    return bins, kurts, pows_mean
 
 
 def get_mask_kurtosis(wf_in, n_divs=256, threshold=50):
     # This function flags bins with high kurtosis (i.e., heavy RFI) and returns the necessary information about
     # these bins.
-    # wf_in: See get_tavg_kurtosis() function definition
-    # n_divs: See get_tavg_kurtosis() function definition
-    # threshold: Minimum kurtosis for a channel to be flagged as 'RFI-heavy'
+    # Inputs:
+        # wf_in: See get_tavg_kurtosis() function definition
+        # n_divs: See get_tavg_kurtosis() function definition
+        # threshold: Minimum kurtosis for a channel to be flagged as 'RFI-heavy'
     
     
     # Get bin and kurtosis information
@@ -98,7 +103,7 @@ def get_mask_kurtosis(wf_in, n_divs=256, threshold=50):
     # If each bin spans 16384 elements, then it spans 125 kHz (125 kHz * 256 = 32 MHz)
     
     full_freq_range = freqs[-1] - freqs[0]
-    bin_width = bin_width = full_freq_range / n_divs # This is the bin width in terms of MHz
+    bin_width = full_freq_range / n_divs # This is the bin width in terms of MHz
     
     bin_width_elements = int(np.floor(len(freqs) / n_divs)) # This is the bin width in terms of the number of elements in freqs
     
@@ -128,4 +133,48 @@ def get_mask_kurtosis(wf_in, n_divs=256, threshold=50):
     # freq_mask: A mask to be used to block out the *actual* frequencies, rather than the frequency *bins*
     return flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask
 
-print('hi')
+def write_output_table(wf_in, filepath='./', n_divs=256, threshold=50):
+    # This function does as it says: It writes the output table. It does so in a .csv format with columns of:
+        # (bin_top) Frequency bin tops
+        # (bin_bot) Frequency bin bottoms
+        # (kurtosis) Kurtosis of each bins
+        # (tavg_pwr) Time-averaged power of each bin
+    # Inputs:
+        # filepath: Path to output .csv file
+        # wf_in: See get_tavg_kurtosis() function definition
+        # n_divs: See get_tavg_kurtosis() function definition
+        # threshold: See get_mask_kurtosis() function definition
+
+    # Assign all the base variables
+    bins, kurts, pows_mean = get_tavg_kurtosis(wf_in, n_divs)
+    flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask = get_mask_kurtosis(wf_in, n_divs, threshold)
+
+    # Get bin tops
+    bin_width = (np.amax(wf_in.get_freqs()) - np.amin(wf_in.get_freqs()))/n_divs
+    bin_tops = flagged_bins + bin_width
+
+    # Format flagged_bins into a regular (not masked) numpy array
+    flagged_bins = ma.filled(flagged_bins, fill_value=np.NaN)
+
+    # Turns the numpy arrays into pandas dataframes so they can be compiled and exported
+    export_bin_bots = pd.DataFrame(data=flagged_bins, columns=['rfi_bin_bots'])
+    # print(export_bin_bots)
+    export_bin_tops = pd.DataFrame(data=bin_tops, columns=['rfi_bin_tops'])
+    # print(export_bin_tops)
+    # powmeandf = pd.DataFrame(data=pows_mean, columns=['col1','col2'])
+    # print(pows_mean[0:2])
+    # export_bin_pwr = pd.DataFrame(data=pows_mean, columns=['tavg_pwr'])
+    # print(export_bin_pwr)
+    export_bin_sk = pd.DataFrame(data=flagged_kurts, columns=['sk'])
+    # print(export_bin_sk)
+
+    export_concat = pd.concat([export_bin_bots,
+                               export_bin_tops,
+                            #    export_bin_pwr,
+                               export_bin_sk], axis=1)
+    
+    export_df = export_concat.sort_values(by=['rfi_bin_bots']).reset_index(drop=True)
+    print(export_df.head(15))
+
+
+    return export_df

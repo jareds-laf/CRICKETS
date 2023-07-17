@@ -3,9 +3,22 @@
 This package is designed to flag heavy RFI frequency bins in data that comes from COSMIC.
 
 ## Installation:
+Note that as of July 17th, 2023, the package is still a work in progress and its main functionality does not work. Once completed, there will be two primary ways to install the package.
+
+### Install by cloning the repository
+Find or create the folder you would like to clone this repository to, then use the following command to install via HTTPS:
+
+```git clone https://github.com/jareds-laf/cosmic-flag-rfi-kurtosis.git```
+
+Alternatively, you can use this command to install via SSH:
+
+```git clone git@github.com:jareds-laf/cosmic-flag-rfi-kurtosis.git```
+
+### Install via pip (WIP)
 This package is currently available on [Test PyPI](https://test.pypi.org/project/cosmic-flag-rfi-kurtosis/). It can be installed with the following command:
 
 ```pip install -i https://test.pypi.org/simple/ cosmic-flag-rfi-kurtosis```
+
 
 ## Summary of the Process
 As of July 14th, 2023, almost all of the functionality of this package is a work in progress. What follows is a summary of the general experience expected in the coming weeks.

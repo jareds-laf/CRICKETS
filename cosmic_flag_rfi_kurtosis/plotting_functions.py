@@ -15,7 +15,7 @@ from analysis_functions import *
 
 
 
-def plot_tavg_powertemp(wf_in,
+def plot_tavg_power(wf_in,
                     f_start=0, f_stop=6000,
                     p_start=0, p_stop=5*10**10, n_divs=256, threshold=50,
                     show_filtered_bins=True):
@@ -41,7 +41,9 @@ def plot_tavg_powertemp(wf_in,
     ax.set_xlabel('Frequency (MHz)')
     ax.set_ylabel('Time-Averaged Power (Counts)')
 
-    ax.plot(wf_in.get_freqs(), wf_pwr_mean, label='Time-averaged power spectrum', c='#1f1f1f')
+    ax.plot(wf_in.get_freqs(), wf_pwr_mean,
+            label='Time-averaged power spectrum',
+            c='#1f1f1f')
 
     # Grab info for RFI masking
     bins, kurts, pows_mean = get_tavg_kurtosis(wf_in, n_divs)
