@@ -4,7 +4,7 @@ from blimpy import calcload, Waterfall
 import time
 import os
 import numpy as np
-from analysis_functions import get_mask_kurtosis, get_tavg_kurtosis, write_output_table
+from analysis_functions import get_kurtosis, write_output_table
 
 # def file_checker(str):
 # 	if str[len(str) - 4:] != '.fil':
