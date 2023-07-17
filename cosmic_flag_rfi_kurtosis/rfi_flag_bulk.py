@@ -57,29 +57,13 @@ wf = Waterfall(os.path.normpath(filfil), max_load = ml)
 t1 = time.time()
 print(f'Done. Elapsed time: {t1 - t0}')
 
-# flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask = get_mask_kurtosis(wf_in=wf, n_divs=args.ndivs, threshold=args.threshold)
 
-write_output_table(wf_in=wf, filepath='./', n_divs=args.ndivs, threshold=args.threshold)
+write_output_table(wf_in=wf, filepath='~/kurtosis_output.csv', n_divs=args.ndivs, threshold=args.threshold)
 
-# # print(wf.get_freqs()[0:6])
-
-# flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask = get_mask_kurtosis(wf, n_divs=args.ndivs, threshold=args.threshold)
-# print(flagged_bins)
-
-
+# Print argument values in case something isn't working :)
 print("\nArgument values:")
 print(args.input_filename, type(args.input_filename))
 print(args.output_filename, type(args.output_filename))
 print(args.threshold, type(args.threshold))
 print(args.ndivs, type(args.ndivs))
 print(args.plot_types, type(args.plot_types))
-
-
-
-
-
-
-# parser.add_argument('filename')           # positional argument
-# parser.add_argument('-c', '--count')      # option that takes a value
-# parser.add_argument('-v', '--verbose',
-#                     action='store_true')  # on/off flag

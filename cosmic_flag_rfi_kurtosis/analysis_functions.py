@@ -145,7 +145,8 @@ def write_output_table(wf_in, filepath='./', n_divs=256, threshold=50):
         # n_divs: See get_tavg_kurtosis() function definition
         # threshold: See get_mask_kurtosis() function definition
 
-    # Assign all the base variables
+    # Assign all the base variables and ensure file export path (export_path) is normalized
+    export_path = os.path.normpath(filepath)
     bins, kurts, pows_mean = get_tavg_kurtosis(wf_in, n_divs)
     flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask = get_mask_kurtosis(wf_in, n_divs, threshold)
 
@@ -156,25 +157,19 @@ def write_output_table(wf_in, filepath='./', n_divs=256, threshold=50):
     # Format flagged_bins into a regular (not masked) numpy array
     flagged_bins = ma.filled(flagged_bins, fill_value=np.NaN)
 
-    # Turns the numpy arrays into pandas dataframes so they can be compiled and exported
+    # Turns the numpy arrays into pandas dataframes so they can be concatenated and exported
     export_bin_bots = pd.DataFrame(data=flagged_bins, columns=['rfi_bin_bots'])
-    # print(export_bin_bots)
     export_bin_tops = pd.DataFrame(data=bin_tops, columns=['rfi_bin_tops'])
-    # print(export_bin_tops)
-    # powmeandf = pd.DataFrame(data=pows_mean, columns=['col1','col2'])
-    # print(pows_mean[0:2])
-    # export_bin_pwr = pd.DataFrame(data=pows_mean, columns=['tavg_pwr'])
-    # print(export_bin_pwr)
     export_bin_sk = pd.DataFrame(data=flagged_kurts, columns=['sk'])
-    # print(export_bin_sk)
 
+    # Concatenate dataframes
     export_concat = pd.concat([export_bin_bots,
                                export_bin_tops,
-                            #    export_bin_pwr,
                                export_bin_sk], axis=1)
     
+    # Sort dataframes by frequency
     export_df = export_concat.sort_values(by=['rfi_bin_bots']).reset_index(drop=True)
-    print(export_df.head(15))
 
+    export_df.to_csv(export_path, index=False)
 
     return export_df
