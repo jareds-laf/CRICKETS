@@ -45,6 +45,7 @@ parser.add_argument('--plot_output_path',
 parser.add_argument('--plot_file_types',
 			help='(Optional, unless -P is given) Output file types (can be pdf, png, and/or jpg). Specify as many of these as you want!',
 			choices=['png', 'pdf', 'jpg'],
+			nargs='+',
 			required=False)
 # TODO: Figure out how to implement custom plot bounds
 # parser.add_argument('--plot_bnds',
@@ -90,6 +91,9 @@ print(args.output_filename, type(args.output_filename))
 print(args.threshold, type(args.threshold))
 print(args.ndivs, type(args.ndivs))
 print(args.plot_types, type(args.plot_types))
+print(args.plot_output_path, type(args.plot_output_path))
+print(args.plot_file_types, type(args.plot_file_types))
+
 
 if args.plot_types != None:
 	f_min = np.floor(np.amin(wf.get_freqs()))
@@ -97,19 +101,36 @@ if args.plot_types != None:
 	p_min = np.floor(np.amin(wf.data))
 	p_max = np.ceil(np.amax(wf.data))
 
+	if args.input_filename.rfind('/') != -1:
+		name_index_start = args.input_filename.rfind('/') + 1
+	else:
+		name_index_start = 1
+	name_index_end = args.input_filename.rfind('.')
+	
+
 	# plot_mask_kurtosis(wf_in=wf, n_divs=args.ndivs, threshold=args.threshold,
 	# 			unfiltered=True, clean_chnls=True, rfi=True,
 	# 			f_start=f_min, f_stop=f_max)
-
+	# TODO: Once you figure out how to do plot boundaries, put in k_start and k_stop! :D
 	if np.any(np.asarray(args.plot_types) == "sk"):
+		sk_plot_name = f'plot_sk_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{args.plot_file_types[0]}'
 		plot_mask_kurtosis(wf_in=wf, n_divs=args.ndivs, threshold=args.threshold,
 		     unfiltered=True, clean_chnls=True, rfi=True,
-			 f_start=f_min, f_stop=f_max)
+			 f_start=f_min, f_stop=f_max,
+			 output_dest=os.path.join(args.plot_output_path, sk_plot_name))
 			#  k_start=, k_stop=)
+
+		print(f'sk plot generated at {os.path.join(args.plot_output_path, sk_plot_name)}')
+	
 	if np.any(np.asarray(args.plot_types) == 'tavg_pwr'):
+		tavg_pwr_plot_name = f'plot_tavg_pwr_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{args.plot_file_types[0]}'
 		plot_tavg_power(wf_in=wf, n_divs=args.ndivs, threshold=args.threshold,
 		   f_start=f_min, f_stop=f_max,
-		   p_start=p_min, p_stop=p_max, show_filtered_bins=True)
+		   p_start=p_min, p_stop=p_max, show_filtered_bins=True,
+		   output_dest=os.path.join(args.plot_output_path, tavg_pwr_plot_name))
+		
+		print(f'tavg_pwr plot generated at {os.path.join(args.plot_output_path, tavg_pwr_plot_name)}')
+
 
 # plot_tavg_power(wf, f_start=f_min, f_stop=f_max, n_divs=args.ndivs, threshold=args.threshold)
 # plot_mask_kurtosis(wf)

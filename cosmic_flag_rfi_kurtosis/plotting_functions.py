@@ -12,7 +12,7 @@ def plot_tavg_power(wf_in,
                     f_start=0, f_stop=6000,
                     p_start=0, p_stop=5*10**10, n_divs=256, threshold=50,
                     show_filtered_bins=True,
-                    output_file='', output_type='png'):
+                    output_dest='', output_type='png'):
     # Plot the time-averaged power spectrum for a given blimpy waterfall object
     # Inputs:
         # wf: The desired input waterfall object
@@ -59,14 +59,14 @@ def plot_tavg_power(wf_in,
         ax.legend(fancybox=True,shadow=True, loc='lower center', bbox_to_anchor=(1, 1), ncols=1)
     else:
         ax.legend(fancybox=True,shadow=True, loc='lower center', bbox_to_anchor=(1, 1), ncols=1)
-    
-    plt.savefig(output_file, type=output_type)
+
+    plt.savefig(output_dest, format=output_type)
 
 def plot_mask_kurtosis(wf_in, n_divs=256, threshold=50,
                        unfiltered=True, clean_chnls=True, rfi=False,
                       f_start=2000, f_stop=4000,
                       k_start=-5, k_stop=500,
-                      output_file='', output_type='png'):
+                      output_dest='', output_type='png'):
     # This function plots the kurtosis of each frequency channel for a specified waterfall object.
     # Inputs:
         # wf_in: See get_kurtosis() function definition
@@ -101,4 +101,4 @@ def plot_mask_kurtosis(wf_in, n_divs=256, threshold=50,
     else:
         ax.legend(fancybox=True,shadow=True, loc='upper center', bbox_to_anchor=(0.5, 1.05), ncols=3)
 
-    plt.savefig(output_file, type=output_type)
+    plt.savefig(output_dest, format=output_type)
