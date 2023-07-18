@@ -106,7 +106,7 @@ python3 /home/alice/cosmic-flag-rfi-kurtosis/cosmic_flag_rfi_kurtosis/rfi_flag_b
 
 Here is a screenshot of the output table taken in Microsoft Excel:
 
-![Alt text](/examples/example_output_excel.png?raw=true "Example output table" width="227" height="350")
+![Alt text](/examples/example_output_excel.png?raw=true width="227" height="350" "Example output table" )
 
 ### Running analysis with plots
 WIP!
