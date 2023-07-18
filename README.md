@@ -41,7 +41,6 @@ This package is currently available on [Test PyPI](https://test.pypi.org/project
 pip install -i https://test.pypi.org/simple/ cosmic-flag-rfi-kurtosis
 ```
 
-
 ## Summary of the Process
 Once again, as of July 18th, 2023, most of the functionality of this package is a work in progress. What follows is a summary of the general process expected in the coming weeks.
 
@@ -107,7 +106,7 @@ python3 /home/alice/cosmic-flag-rfi-kurtosis/cosmic_flag_rfi_kurtosis/rfi_flag_b
 
 Here is a screenshot of the output table taken in Microsoft Excel:
 
-![Alt text](/examples/example_output_excel.png?raw=true "Example output table")
+![Alt text](/examples/example_output_excel.png?raw=true "Example output table" width="227" height="350")
 
 ### Running analysis with plots
 WIP!
