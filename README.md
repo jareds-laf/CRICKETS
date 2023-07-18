@@ -24,16 +24,22 @@ The versions of the following required packages shown are simply a snapshot of t
 ### Install by cloning the repository
 Find or create the folder you would like to clone this repository to, then use the following command to clone via HTTPS:
 
-```git clone https://github.com/jareds-laf/cosmic-flag-rfi-kurtosis.git```
+```
+git clone https://github.com/jareds-laf/cosmic-flag-rfi-kurtosis.git
+```
 
 Alternatively, you can use this command to clone via SSH:
 
-```git clone git@github.com:jareds-laf/cosmic-flag-rfi-kurtosis.git```
+```
+git clone git@github.com:jareds-laf/cosmic-flag-rfi-kurtosis.git
+```
 
 ### Install via pip (WIP)
 This package is currently available on [Test PyPI](https://test.pypi.org/project/cosmic-flag-rfi-kurtosis/). It can be installed with the following command:
 
-```pip install -i https://test.pypi.org/simple/ cosmic-flag-rfi-kurtosis```
+```
+pip install -i https://test.pypi.org/simple/ cosmic-flag-rfi-kurtosis
+```
 
 
 ## Summary of the Process
@@ -63,7 +69,9 @@ The user can choose to generate two types of plots to aid them in their scientif
 ## Usage
 All functions of this package can be run from the command line. The general syntax is as follows:
 
-```python3 <path-to-rfi_flag_bulk.py> [Options]```
+```
+python3 <path-to-rfi_flag_bulk.py> [Options]
+```
 
 Options:
 - ```--input_filename``` (Required) Path to input filterbank file (including file name).
@@ -73,7 +81,15 @@ Options:
 
 Plotting options are being improved as of July 18th, 2023!
 
-Use ```python3 <path-to-rfi_flag_bulk.py> -h``` or ```python3 <path-to-rfi_flag_bulk.py> --help``` to list all options, as well!
+Use either of the following commands to list all options, as well!
+
+```
+python3 <path-to-rfi_flag_bulk.py> -h
+``` 
+
+```
+python3 <path-to-rfi_flag_bulk.py> --help
+```
 
 ## Examples
 ### Running analysis without plots
@@ -92,3 +108,6 @@ python3 /home/alice/cosmic-flag-rfi-kurtosis/cosmic_flag_rfi_kurtosis/rfi_flag_b
 Here is a screenshot of the output table taken in Microsoft Excel:
 
 ![Alt text](/examples/example_output_excel.png?raw=true "Example output table")
+
+### Running analysis with plots
+WIP!

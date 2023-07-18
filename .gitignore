@@ -10,3 +10,7 @@ dist
 pyproject.toml
 
 cosmic_flag_rfi_kurtosis/requirements.txt
+cosmic_flag_rfi_kurtosis/anothertest.py.py
+cosmic_flag_rfi_kurtosis/requirements.txt
+cosmic_flag_rfi_kurtosis/say_hi.py
+cosmic_flag_rfi_kurtosis/test.py
