@@ -117,21 +117,24 @@ if args.plot_types != None:
 	# 			f_start=f_min, f_stop=f_max)
 	# TODO: Once you figure out how to do plot boundaries, put in k_start and k_stop! :D
 	if np.any(np.asarray(args.plot_types) == "exkurt"):
-		exkurt_plot_name = f'plot_exkurt_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{args.plot_file_types[0]}'
+		exkurt_plot_name = f'plot_exkurt_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{args.plot_file_types}'
 		plot_mask_exkurt(wf_in=wf, n_divs=args.ndivs, threshold=args.threshold,
 		     unfiltered=True, clean_chnls=True, rfi=True,
 			 f_start=f_min, f_stop=f_max,
-			 output_dest=os.path.join(args.plot_output_path, exkurt_plot_name))
+			 output_dest=os.path.join(args.plot_output_path, exkurt_plot_name),
+			 output_type=args.plot_file_types)
 			#  k_start=, k_stop=)
 
 		print(f'exkurt plot generated at {os.path.join(args.plot_output_path, exkurt_plot_name)}')
 	
 	if np.any(np.asarray(args.plot_types) == 'tavg_pwr'):
-		tavg_pwr_plot_name = f'plot_tavg_pwr_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{args.plot_file_types[0]}'
+		tavg_pwr_plot_name = f'plot_tavg_pwr_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{args.plot_file_types}'
 		plot_tavg_power(wf_in=wf, n_divs=args.ndivs, threshold=args.threshold,
 		   f_start=f_min, f_stop=f_max,
 		   p_start=p_min, p_stop=p_max, show_filtered_bins=True,
-		   output_dest=os.path.join(args.plot_output_path, tavg_pwr_plot_name))
+		   output_dest=os.path.join(args.plot_output_path, tavg_pwr_plot_name),
+		   output_type=args.plot_file_types)
+		
 		
 		print(f'tavg_pwr plot generated at {os.path.join(args.plot_output_path, tavg_pwr_plot_name)}')
 

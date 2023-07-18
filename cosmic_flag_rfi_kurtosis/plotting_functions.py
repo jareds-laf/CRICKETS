@@ -6,13 +6,21 @@ from analysis_functions import get_exkurt
 
 # TODO: Make it so that these functions access the table that
 # was created by the write_output_table() function!
+'''^^ This is definitely a stretch goal. It's more of an optimization thing.
+It would take some more structural changes I don't have time to deal with this summer!'''
+
 # TODO: Add output file functionality for different file types
+
+def save_fig(filename, types=['png']):
+    fig = plt.gcf()
+    for filetype in types:
+        fig.savefig(f'{os.path.realpath(os.path.expanduser(filename))}.{filetype}')
 
 def plot_tavg_power(wf_in,
                     f_start=0, f_stop=6000,
                     p_start=0, p_stop=5*10**10, n_divs=256, threshold=50,
                     show_filtered_bins=True,
-                    output_dest='', output_type='png'):
+                    output_dest='', output_type=['png']):
     # Plot the time-averaged power spectrum for a given blimpy waterfall object
     # Inputs:
         # wf: The desired input waterfall object
@@ -60,7 +68,7 @@ def plot_tavg_power(wf_in,
     else:
         ax.legend(fancybox=True,shadow=True, loc='lower center', bbox_to_anchor=(1, 1), ncols=1)
 
-    plt.savefig(output_dest, format=output_type)
+    save_fig(os.path.realpath(os.path.expanduser(output_dest)), types=output_type)
 
 def plot_mask_exkurt(wf_in, n_divs=256, threshold=50,
                        unfiltered=True, clean_chnls=True, rfi=False,
@@ -101,4 +109,4 @@ def plot_mask_exkurt(wf_in, n_divs=256, threshold=50,
     else:
         ax.legend(fancybox=True,shadow=True, loc='upper center', bbox_to_anchor=(0.5, 1.05), ncols=3)
 
-    plt.savefig(output_dest, format=output_type)
+    save_fig(os.path.realpath(os.path.expanduser(output_dest)), types=output_type)
