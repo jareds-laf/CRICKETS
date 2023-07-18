@@ -20,7 +20,8 @@ parser.add_argument('--input_filename',
 			required=True)
 parser.add_argument('--output_filename',
 		    help='(Required) Path to output csv file (including file name).',
-			type=str)
+			type=str,
+			required=True)
 parser.add_argument('-T', '--threshold',
 		    help='(Required) Minimum value of excess kurtosis used to flag channels with significant RFI.',
 			type=float,
@@ -76,8 +77,8 @@ t1 = time.time()
 print(f'Done. Elapsed time: {t1 - t0}')
 
 # TODO: Check to make sure the plot_types given are valid
-# if (np.any(args.plot_types) != 'kurt') & (np.any(args.plot_types) != 'tavg_pwr'):
-# 	parser.error(f'No valid inputs given for --plot_types. Valid inputs are kurt and tavg_pwr. Inputs given: {args.plot_types}')
+# if (np.any(args.plot_types) != 'exkurt') & (np.any(args.plot_types) != 'tavg_pwr'):
+# 	parser.error(f'No valid inputs given for --plot_types. Valid inputs are exkurt and tavg_pwr. Inputs given: {args.plot_types}')
 # if len(args.plot_style) > 2:
 # 	parser.error(f'Expected 2 arguments for --plot_style, given {len(args.plot_style)}. Arguments given: {args.plot_style}')
 
@@ -115,15 +116,15 @@ if args.plot_types != None:
 	# 			unfiltered=True, clean_chnls=True, rfi=True,
 	# 			f_start=f_min, f_stop=f_max)
 	# TODO: Once you figure out how to do plot boundaries, put in k_start and k_stop! :D
-	if np.any(np.asarray(args.plot_types) == "kurt"):
-		kurt_plot_name = f'plot_kurt_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{args.plot_file_types[0]}'
+	if np.any(np.asarray(args.plot_types) == "exkurt"):
+		exkurt_plot_name = f'plot_exkurt_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{args.plot_file_types[0]}'
 		plot_mask_exkurt(wf_in=wf, n_divs=args.ndivs, threshold=args.threshold,
 		     unfiltered=True, clean_chnls=True, rfi=True,
 			 f_start=f_min, f_stop=f_max,
-			 output_dest=os.path.join(args.plot_output_path, kurt_plot_name))
+			 output_dest=os.path.join(args.plot_output_path, exkurt_plot_name))
 			#  k_start=, k_stop=)
 
-		print(f'kurt plot generated at {os.path.join(args.plot_output_path, kurt_plot_name)}')
+		print(f'exkurt plot generated at {os.path.join(args.plot_output_path, exkurt_plot_name)}')
 	
 	if np.any(np.asarray(args.plot_types) == 'tavg_pwr'):
 		tavg_pwr_plot_name = f'plot_tavg_pwr_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{args.plot_file_types[0]}'

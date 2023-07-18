@@ -1,11 +1,11 @@
 # cosmic_flag_rfi_kurtosis
 
-This package is designed to flag heavy RFI frequency bins in data that comes from COSMIC. This is accomplished by generated a time-averaged power spectrum from an input .fil file and analyzing the excess kurtosis (A.K.A. exkurt) of the power in a specified number of frequency bins.
+This package is designed to flag heavy RFI frequency bins in data that comes from COSMIC (Tremblay, Varghese, et al. (in preparation)). This is accomplished by generated a time-averaged power spectrum from an input .fil file and analyzing the excess kurtosis (A.K.A. exkurt) of the power in a specified number of frequency bins.
 
 In its current state, this package is **NOT** for differentiating any signals of scientific interest from RFI. Its strength is combing through observations of sources with little to no fine frequency emissions that could be mistaken for RFI. Assuming noise follows a Gaussian distribution, any frequency bins with an excess kurtosis outside of a specifiable range around 0 are likely RFI.
 
 
-With the limitations of this program in mind, the best use of this package is to frequency ranges that are heavy in RFI during the time of observation and masking these frequencies after the data from the primary observations have been collected. The package is also effective for studying the overall RFI environment of a series of observations at different times.
+With the limitations of this program in mind, the best use of this package is to flag frequency ranges that are heavy in RFI during the time of observation and masking these frequencies after the data from the primary observations have been collected. The package is also effective for studying the overall RFI environment of a series of observations at different times.
 
 **A note on terminology: With the typical (Pearson) definition of kurtosis, a Gaussian distribution has a kurtosis of 3 and an "excess kurtosis" of 0. This package uses the Pearson definition of kurtosis as of July 18th, 2023. There may be some references to "kurtosis" (not excess kurtosis) throughout the code and documentation. If you come across any of these instances (other than the name of the repo and package itself), please contact sofairj@lafayette.edu :)**
 
@@ -13,7 +13,13 @@ With the limitations of this program in mind, the best use of this package is to
 As of July 18th, 2023, the package is still a work in progress and it is not entirely functional. Once completed, there will be two primary ways to install the package.
 
 ### Dependencies
-WIP!
+The versions of the following required packages shown are simply a snapshot of the versions used in the development of this package. It is very likely that other versions of the dependencies, both past and future, can be used for this package.
+
+- blimpy==2.1.4
+- matplotlib==3.7.2
+- numpy==1.25.1
+- pandas==2.0.3
+- scipy==1.11.1
 
 ### Install by cloning the repository
 Find or create the folder you would like to clone this repository to, then use the following command to clone via HTTPS:
@@ -34,15 +40,18 @@ This package is currently available on [Test PyPI](https://test.pypi.org/project
 Once again, as of July 18th, 2023, most of the functionality of this package is a work in progress. What follows is a summary of the general process expected in the coming weeks.
 
 ### Flow of Analysis
-The input filterbank file is used to generate a [blimpy](https://github.com/UCBerkeleySETI/blimpy) waterfall object. The power is then averaged over the time domain, and the waterfall object is then split into a specifiable number of frequency bins. The default number of bins is 256. The excess kurtosis of each bin is then calculated using [scipy](https://github.com/scipy/scipy), and bins with a "high" excess kurtosis are flagged. The high RFI bins are output in a .csv file with the following columns:
+The input filterbank file is used to generate a [blimpy](https://github.com/UCBerkeleySETI/blimpy) waterfall object. The power is then averaged over the time domain, and the waterfall object is split into a specifiable number of frequency bins. The default number of bins is 256. So as to avoid any infinite excess kurtosis, the data is rescaled. Then, the excess kurtosis of each bin is then calculated using [scipy](https://github.com/scipy/scipy), and bins with a high* excess kurtosis are flagged. The data is once again checked for any unwanted infinities. The high RFI bins are output in a .csv file with the following columns:
 
-- **rfi_bin_bots**: Frequency bin bottoms
-- **rfi_bin_tops**: Frequency bin tops
+- **rfi_bin_bots**: High RFI frequency bin bottoms
+- **rfi_bin_tops**: High RFI frequency bin tops
 - **exkurt**: Excess kurtosis of corresponding bin
 
+*The minimum threshold to flag high excess kurtosis bins can be specified by the user. The threshold constitutes the ends of the range of kurtoses that is flagged. That is, the flagged bins fall within the range
 
-The minimum threshold to flag high excess kurtosis bins can be specified by the user. One might use a higher threshold if they are using this package as a quick and dirty way to flag problematic frequency ranges. A lower threshold would be useful if the user knows there are strong yet short-lived RFI signatures at certain frequencies in their data. The user can also choose to include all frequency bins in the output file so that they can determine the minimum excess kurtosis threshold more effectively.
+threshold &#2264; kurtosis &#2264; threshold ⇔ threshold &#2264; |kurtosis| 
+```threshold <= kurtosis <= threshold```
 
+The user can also choose to include all frequency bins in the output file so that they can determine the minimum excess kurtosis threshold more effectively. One might use a higher threshold if they are using this package as a quick and dirty way to flag problematic frequency ranges. A lower threshold would be useful if the user knows there are strong yet short-lived RFI signatures at certain frequencies in their data. 
 
 ### Plotting Functions
 The user can choose to generate two types of plots to aid them in their scientific endeavors using the following options:

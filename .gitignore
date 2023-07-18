@@ -8,3 +8,5 @@ cosmic_flag_rfi_kurtosis.egg-info
 dist/
 dist
 pyproject.toml
+
+cosmic_flag_rfi_kurtosis/requirements.txt

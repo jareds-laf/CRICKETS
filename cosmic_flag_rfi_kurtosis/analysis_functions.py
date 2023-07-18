@@ -22,15 +22,16 @@ def get_exkurt(wf_in, n_divs=256, threshold=50):
             # of the waterfall is 32 MHz
         # threshold: Minimum excess kurtosis for a channel to be flagged as 'RFI-heavy'
 
-#     np.set_printoptions(threshold=4)
-
 ##### Section 1 #####
 
     # Get power and frequency in increasing order
     if wf_in.header['foff'] < 0:
         pows_flipped = np.flip(wf_in.data)
         freqs_flipped = wf_in.get_freqs()[::-1]
-    
+    else:
+        pows_flipped = wf_in.data
+        freqs_flipped = wf_in.get_freqs()
+
     # Time-average the power
     pows_mean_flipped = np.mean(pows_flipped, axis=0)[0]   
 
@@ -43,16 +44,16 @@ def get_exkurt(wf_in, n_divs=256, threshold=50):
     # freqs_flipped is all of the frequencies in increasing order
     
     # Get excess kurtosis of all channels
-    kurts_list = []
+    exkurts_list = []
     
     for division in pows_mean:
-        kurts_list.append(kurtosis(division/(10**9))) # Rescaling data so that excess kurtosis != inf ever (hopefully)
+        exkurts_list.append(kurtosis(division/(10**9))) # Rescaling data so that excess kurtosis != inf ever (hopefully)
     
-    kurts = np.array(kurts_list, dtype=np.float64)
+    exkurts = np.array(exkurts_list, dtype=np.float64)
     
     # Check to see if any of the kurtoses are infinite
-    if np.any(np.isfinite(kurts)) == False:
-        print(f'Infinite kurtoses located at indices {np.where(np.isfinite(kurts) == False)}')
+    if np.any(np.isfinite(exkurts)) == False:
+        print(f'Infinite kurtoses located at indices {np.where(np.isfinite(exkurts) == False)}')
     else:
         print('No infinite kurtoses found')
 
@@ -67,14 +68,14 @@ def get_exkurt(wf_in, n_divs=256, threshold=50):
     # This part of the function flags bins with high excess kurtosis.
     
     # masked_kurts is an array that has all channels with |excess kurtosis| > threshold masked out
-    masked_kurts = ma.masked_where(np.abs(kurts) > threshold, kurts)
+    masked_kurts = ma.masked_where(np.abs(exkurts) > threshold, exkurts)
     bin_mask = ma.getmask(masked_kurts)
     
     # flagged_bins is an array that has the frequencies of the channels with excess kurtosis > threshold NOT masked out
     # flagged_kurts masks the opposite elements as masked_kurts (i.e., it contains all of the kurtoses of the
     # high RFI channels)
     flagged_bins = ma.masked_array(bins, mask=~bin_mask)
-    flagged_kurts = ma.masked_array(kurts, mask=~bin_mask)
+    flagged_kurts = ma.masked_array(exkurts, mask=~bin_mask)
     
     # The reason I am no longer using ma.count(masked_array) is because there can be an error where masked elements
     # are converted to NaNs.
@@ -122,7 +123,7 @@ def get_exkurt(wf_in, n_divs=256, threshold=50):
         # masked_freqs: List of all frequencies with high RFI channels masked out
         # bin_mask: The mask used to generate masked_kurts -- Masks the frequency *bins*
         # freq_mask: A mask to be used to block out the *actual* frequencies, rather than the frequency *bins*
-    return bins, kurts, pows_mean, flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask
+    return bins, exkurts, pows_mean, flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask
 
 def write_output_table(wf_in, output_filepath='./', n_divs=256, threshold=50):
     # This function does as it says: It writes the output table. It does so in a .csv format with columns of:
