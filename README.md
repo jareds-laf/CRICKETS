@@ -91,5 +91,4 @@ Here is an example with a minimum kurtosis threshold of 5 where the waterfall ob
 
 Here is a screenshot of the output table taken in Microsoft Excel:
 
-TODO: Input screenshot :)
-
+![Alt text](/examples/example_output_excel.png?raw=true "Example output table")
