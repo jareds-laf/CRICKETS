@@ -48,22 +48,41 @@ The input filterbank file is used to generate a [blimpy](https://github.com/UCBe
 
 *The minimum threshold to flag high excess kurtosis bins can be specified by the user. The threshold constitutes the ends of the range of kurtoses that is flagged. That is, the flagged bins fall within the range
 
-threshold &#2264; kurtosis &#2264; threshold ⇔ threshold &#2264; |kurtosis| 
-```threshold <= kurtosis <= threshold```
+*threshold* &#8804; *excess kurtosis* &#8804; *threshold* ⇔ *threshold* &#8804; |*kurtosis*|
 
 The user can also choose to include all frequency bins in the output file so that they can determine the minimum excess kurtosis threshold more effectively. One might use a higher threshold if they are using this package as a quick and dirty way to flag problematic frequency ranges. A lower threshold would be useful if the user knows there are strong yet short-lived RFI signatures at certain frequencies in their data. 
 
 ### Plotting Functions
 The user can choose to generate two types of plots to aid them in their scientific endeavors using the following options:
-1. ---plot_kurt: Plot the excess kurtosis of each bin against their corresponding bin bottoms. One can choose to include up to 3 of the following data categories to plot the excess kurtosis of:
+1. --plot_kurt: Plot the excess kurtosis of each bin against their corresponding bin bottoms. One can choose to include up to 3 of the following data categories to plot the excess kurtosis of:
    1. Unfiltered data
    2. "Clean"/low RFI channels
    3. "Dirty"/high RFI channels
 2. --plot_pwr: Plot the time-averaged power spectrum (i.e., time-averaged power *vs*. frequency). The user can specify whether or not to show the bins that have been flagged as having heavy RFI. Flagged bins will have as transparent red rectangles that span the height of the graph and are "behind" the main spectrum so as not to steal the show.
     
-## Examples
+## Usage
 All functions of this package can be run from the command line. The general syntax is as follows:
 
-```python3 <path-to-rfi_flag_bulk.py> ```
+```python3 <path-to-rfi_flag_bulk.py> [Options]```
 
+Options:
+- ```--input_filename: (Required) Path to input filterbank file (including file name).```
+- ```--output_filename: (Required) Path to output csv file (including file name).```
+- ```--threshold, -T: (Required) Minimum value of excess kurtosis used to flag channels with significant RFI. Can be any decimal number.```
+- ```--ndivs, -N: (Required) Number of frequency bins to split waterfall object into. Can be any integer.```
+
+Plotting options are being improved as of July 18th, 2023!
+
+***IMPORTANT NOTES:***
+- Because of the nature of plt.savefig(), all filepaths ***MUST*** be typed out completely. For example, the use of environment variables or the symbol ```~``` ***CANNOT*** be used. 
+- File paths do not need to be absolute. If file paths are given as relative, the output file paths (for both analysis and plotting) are read relative to the location of ```rf_flag_bulk.py```.
+
+## Examples
 ### Running analysis without plots
+The template for running analysis without generating any plots is as follows:
+
+```python3 <path/to/rfi_flag_bulk.py> --input_filename <path/to/filterbank.fil> --output_filename <path/to/output.csv> -T <kurtosis_threshold (float)> -N <number_of_bins (int)>```
+
+Here is an example with a minimum kurtosis threshold of 5 where the waterfall object gets broken into 256 frequency bins.
+
+```python3 /home/alice/cosmic-flag-rfi-kurtosis/cosmic_flag_rfi_kurtosis/rfi_flag_bulk.py --input_filename /home/alice/filterbank/filterbank1.fil --output_filename /home/alice/cfrk_output.csv -T 5 -N 256```

@@ -28,7 +28,7 @@ parser.add_argument('-T', '--threshold',
 			default=5,
 			required=True)
 parser.add_argument('-N', '--ndivs',
-		    help='(Required) Number of frequency bins.',
+		    help='(Required) Number of frequency bins to split waterfall object into.',
 			type=int,
 		    default=256,
 			required=True)
