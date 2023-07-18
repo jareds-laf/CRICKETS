@@ -24,7 +24,7 @@ def get_kurtosis(wf_in, n_divs=256, threshold=50):
 
 #     np.set_printoptions(threshold=4)
 
-### Section 1 ###
+##### Section 1 #####
 
     # Get power and frequency in increasing order
     if wf_in.header['foff'] < 0:
@@ -63,7 +63,7 @@ def get_kurtosis(wf_in, n_divs=256, threshold=50):
     for chnl in freqs:
         bins.append(chnl[0])
 
-### Section 2 ###
+##### Section 2 #####
     # This part of the function flags bins with high kurtosis.
     
     # masked_kurts is an array that has all channels with |kurtosis| > threshold masked out
@@ -124,24 +124,24 @@ def get_kurtosis(wf_in, n_divs=256, threshold=50):
         # freq_mask: A mask to be used to block out the *actual* frequencies, rather than the frequency *bins*
     return bins, kurts, pows_mean, flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask
 
-def write_output_table(wf_in, filepath='./', n_divs=256, threshold=50):
+def write_output_table(wf_in, output_filepath='./', n_divs=256, threshold=50):
     # This function does as it says: It writes the output table. It does so in a .csv format with columns of:
         # (bin_top) Frequency bin tops
         # (bin_bot) Frequency bin bottoms
         # (kurtosis) Kurtosis of each bins
         # (tavg_pwr) Time-averaged power of each bin
     # Inputs:
-        # filepath: Path to output .csv file
+        # output_filepath: Path to output .csv file
         # wf_in: See get_tavg_kurtosis() function definition
         # n_divs: See get_tavg_kurtosis() function definition
         # threshold: See get_mask_kurtosis() function definition
 
     # Assign all the base variables and ensure file export path (export_path) is normalized
-    export_path = os.path.normpath(filepath)
+    export_path = os.path.normpath(output_filepath)
     bins, kurts, pows_mean, flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask = get_kurtosis(wf_in, n_divs, threshold)
 
     # Get bin tops
-    bin_width = (np.amax(wf_in.get_freqs()) - np.amin(wf_in.get_freqs()))/n_divs
+    bin_width = (np.amax(wf_in.get_freqs()) - np.amin(wf_in.get_freqs())) / n_divs
     bin_tops = flagged_bins + bin_width
 
     # Format flagged_bins into a regular (not masked) numpy array
@@ -156,7 +156,7 @@ def write_output_table(wf_in, filepath='./', n_divs=256, threshold=50):
     export_concat = pd.concat([export_bin_bots,
                                export_bin_tops,
                                export_bin_sk], axis=1)
-    
+
     # Sort dataframes by frequency
     export_df = export_concat.sort_values(by=['rfi_bin_bots']).reset_index(drop=True)
 
