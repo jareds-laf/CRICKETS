@@ -12,15 +12,15 @@ import scipy
 import numpy.ma as ma
 import pandas as pd
 
-def get_kurtosis(wf_in, n_divs=256, threshold=50):
-    # This function grabs the kurtosis of channels of a specified size for a blimpy waterfall object (section 1)
-    # and flags bins with high kurtosis (i.e., heavy RFI) and returns the necessary information about these bins (section 2).
+def get_exkurt(wf_in, n_divs=256, threshold=50):
+    # This function grabs the excess kurtosis of channels of a specified size for a blimpy waterfall object (section 1)
+    # and flags bins with high excess kurtosis (i.e., heavy RFI) and returns the necessary information about these bins (section 2).
     # Inputs:
         # wf_in: Specified blimpy waterfall object
         # n_divs: Number of divisions to break wf_in into
             # 32 is the correct number of channels to break a waterfall into assuming the frequency range
             # of the waterfall is 32 MHz
-        # threshold: Minimum kurtosis for a channel to be flagged as 'RFI-heavy'
+        # threshold: Minimum excess kurtosis for a channel to be flagged as 'RFI-heavy'
 
 #     np.set_printoptions(threshold=4)
 
@@ -42,11 +42,11 @@ def get_kurtosis(wf_in, n_divs=256, threshold=50):
     # pows_flipped is all of the powers in increasing order,
     # freqs_flipped is all of the frequencies in increasing order
     
-    # Get kurtosis of all channels
+    # Get excess kurtosis of all channels
     kurts_list = []
     
-    for i, division in enumerate(pows_mean):
-        kurts_list.append(kurtosis(division/(10**9))) # Rescaling data so that kurtosis != inf ever (hopefully)
+    for division in pows_mean:
+        kurts_list.append(kurtosis(division/(10**9))) # Rescaling data so that excess kurtosis != inf ever (hopefully)
     
     kurts = np.array(kurts_list, dtype=np.float64)
     
@@ -64,13 +64,13 @@ def get_kurtosis(wf_in, n_divs=256, threshold=50):
         bins.append(chnl[0])
 
 ##### Section 2 #####
-    # This part of the function flags bins with high kurtosis.
+    # This part of the function flags bins with high excess kurtosis.
     
-    # masked_kurts is an array that has all channels with |kurtosis| > threshold masked out
+    # masked_kurts is an array that has all channels with |excess kurtosis| > threshold masked out
     masked_kurts = ma.masked_where(np.abs(kurts) > threshold, kurts)
     bin_mask = ma.getmask(masked_kurts)
     
-    # flagged_bins is an array that has the frequencies of the channels with kurtosis > threshold NOT masked out
+    # flagged_bins is an array that has the frequencies of the channels with excess kurtosis > threshold NOT masked out
     # flagged_kurts masks the opposite elements as masked_kurts (i.e., it contains all of the kurtoses of the
     # high RFI channels)
     flagged_bins = ma.masked_array(bins, mask=~bin_mask)
@@ -114,11 +114,11 @@ def get_kurtosis(wf_in, n_divs=256, threshold=50):
     
     # Summary of returned variables:
         # bins: All frequency bins for the frequency range of the waterfall
-        # kurts: Kurtosis of all frequency bins
+        # kurts: Excess kurtosis of all frequency bins
         # pows_mean: Time-averaged power of each frequency bin
-        # flagged_bins: Channels with high kurtosis (i.e., high RFI)
-        # flagged_kurts: Kurtosis of each channel that was flagged as having high RFI
-        # masked_kurts: Kurtosis of all 'clean' (low RFI) channels with high RFI channels masked out
+        # flagged_bins: Channels with high excess kurtosis (i.e., high RFI)
+        # flagged_kurts: Excess kurtosis of each channel that was flagged as having high RFI
+        # masked_kurts: Excess kurtosis of all 'clean' (low RFI) channels with high RFI channels masked out
         # masked_freqs: List of all frequencies with high RFI channels masked out
         # bin_mask: The mask used to generate masked_kurts -- Masks the frequency *bins*
         # freq_mask: A mask to be used to block out the *actual* frequencies, rather than the frequency *bins*
@@ -128,17 +128,16 @@ def write_output_table(wf_in, output_filepath='./', n_divs=256, threshold=50):
     # This function does as it says: It writes the output table. It does so in a .csv format with columns of:
         # (bin_top) Frequency bin tops
         # (bin_bot) Frequency bin bottoms
-        # (kurtosis) Kurtosis of each bins
-        # (tavg_pwr) Time-averaged power of each bin
+        # (exkurt) Excess kurtosis of each bin
     # Inputs:
         # output_filepath: Path to output .csv file
-        # wf_in: See get_tavg_kurtosis() function definition
-        # n_divs: See get_tavg_kurtosis() function definition
-        # threshold: See get_mask_kurtosis() function definition
+        # wf_in: See get_exkurt() function definition
+        # n_divs: See get_exkurt() function definition
+        # threshold: See get_exkurt() function definition
 
     # Assign all the base variables and ensure file export path (export_path) is normalized
     export_path = os.path.normpath(output_filepath)
-    bins, kurts, pows_mean, flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask = get_kurtosis(wf_in, n_divs, threshold)
+    bins, kurts, pows_mean, flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask = get_exkurt(wf_in, n_divs, threshold)
 
     # Get bin tops
     bin_width = (np.amax(wf_in.get_freqs()) - np.amin(wf_in.get_freqs())) / n_divs
@@ -150,12 +149,12 @@ def write_output_table(wf_in, output_filepath='./', n_divs=256, threshold=50):
     # Turns the numpy arrays into pandas dataframes so they can be concatenated and exported
     export_bin_bots = pd.DataFrame(data=flagged_bins, columns=['rfi_bin_bots'])
     export_bin_tops = pd.DataFrame(data=bin_tops, columns=['rfi_bin_tops'])
-    export_bin_sk = pd.DataFrame(data=flagged_kurts, columns=['sk'])
+    export_bin_kurt = pd.DataFrame(data=flagged_kurts, columns=['kurt'])
 
     # Concatenate dataframes
     export_concat = pd.concat([export_bin_bots,
                                export_bin_tops,
-                               export_bin_sk], axis=1)
+                               export_bin_kurt], axis=1)
 
     # Sort dataframes by frequency
     export_df = export_concat.sort_values(by=['rfi_bin_bots']).reset_index(drop=True)

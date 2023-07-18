@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-from analysis_functions import get_kurtosis
+from analysis_functions import get_exkurt
 
 
 # TODO: Make it so that these functions access the table that
@@ -43,7 +43,7 @@ def plot_tavg_power(wf_in,
             c='#1f1f1f')
 
     # Grab info for RFI masking
-    bins, kurts, pows_mean, flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask = get_kurtosis(wf_in, n_divs, threshold)
+    bins, kurts, pows_mean, flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask = get_exkurt(wf_in, n_divs, threshold)
 
     # Plot frequency bins that were flagged as RFI
     if show_filtered_bins == True:
@@ -62,28 +62,28 @@ def plot_tavg_power(wf_in,
 
     plt.savefig(output_dest, format=output_type)
 
-def plot_mask_kurtosis(wf_in, n_divs=256, threshold=50,
+def plot_mask_exkurt(wf_in, n_divs=256, threshold=50,
                        unfiltered=True, clean_chnls=True, rfi=False,
                       f_start=2000, f_stop=4000,
                       k_start=-5, k_stop=500,
                       output_dest='', output_type='png'):
-    # This function plots the kurtosis of each frequency channel for a specified waterfall object.
+    # This function plots the excess kurtosis of each frequency channel for a specified waterfall object.
     # Inputs:
-        # wf_in: See get_kurtosis() function definition
-        # n_divs: See get_kurtosis() function definition
-        # threshold: See get_mask_kurtosis() function definition
+        # wf_in: See get_exkurt() function definition
+        # n_divs: See get_exkurt() function definition
+        # threshold: See get_exkurt() function definition
         # unfiltered: If true, plot the data before any RFI filtering has occurred
         # clean_chnls: If true, plot the data after RFI has been filtered out
         # rfi: If true, plot the channels that have been marked as RFI
         # output_dest: Location (including filename) to save output file
         # output_type: Filetype of output
     
-    bins, kurts, pows_mean, flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask = get_kurtosis(wf_in, n_divs, threshold)
+    bins, kurts, pows_mean, flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask = get_exkurt(wf_in, n_divs, threshold)
     
     fig, ax = plt.subplots()
     
     ax.set_xlabel('Frequency (MHz)')
-    ax.set_ylabel('Kurtosis')
+    ax.set_ylabel('Excess Kurtosis')
     
     if unfiltered:
         ax.plot(bins, kurts, 'o', c='black', label='Unfiltered data') # Color is a nice black

@@ -4,15 +4,15 @@ from blimpy import calcload, Waterfall
 import time
 import os
 import numpy as np
-from analysis_functions import get_kurtosis, write_output_table
-from plotting_functions import plot_mask_kurtosis, plot_tavg_power
+from analysis_functions import get_exkurt, write_output_table
+from plotting_functions import plot_mask_exkurt, plot_tavg_power
 
 # def file_checker(str):
 # 	if str[len(str) - 4:] != '.fil':
 # 		raise argparse.ArgumentTypeError(f'Input file must be a filterbank (.fil) file. Specified input file path: {str}')
 
 parser = argparse.ArgumentParser(
-                    description='Flag RFI heavy frequency channels based on the kurtosis of each channel.')
+                    description='Flag RFI heavy frequency channels based on the excess kurtosis of each channel.')
 
 parser.add_argument('--input_filename',
 		    help='(Required) Path to input filterbank file (including file name).', 
@@ -22,7 +22,7 @@ parser.add_argument('--output_filename',
 		    help='(Required) Path to output csv file (including file name).',
 			type=str)
 parser.add_argument('-T', '--threshold',
-		    help='(Required) Minimum value of kurtosis used to flag channels with significant RFI.',
+		    help='(Required) Minimum value of excess kurtosis used to flag channels with significant RFI.',
 			type=float,
 			default=5,
 			required=True)
@@ -31,9 +31,12 @@ parser.add_argument('-N', '--ndivs',
 			type=int,
 		    default=256,
 			required=True)
+
+
+# TODO: Better implementation of the plotting arguments!
 parser.add_argument('-P', '--plot_types',
-		    help='(Optional) List of plot types. tavg_pwr: Time-averaged power spectrum. sk: Spectral kurtosis plot.',
-			choices=['sk', 'tavg_pwr'],
+		    help='(Optional) List of plot types. tavg_pwr: Time-averaged power spectrum. exkurt: Excess kurtosis vs. frequency plot.',
+			choices=['exkurt', 'tavg_pwr'],
 			nargs='+',
 			# type=str,
 			# default=[None, None],
@@ -73,8 +76,8 @@ t1 = time.time()
 print(f'Done. Elapsed time: {t1 - t0}')
 
 # TODO: Check to make sure the plot_types given are valid
-# if (np.any(args.plot_types) != 'sk') & (np.any(args.plot_types) != 'tavg_pwr'):
-# 	parser.error(f'No valid inputs given for --plot_types. Valid inputs are sk and tavg_pwr. Inputs given: {args.plot_types}')
+# if (np.any(args.plot_types) != 'kurt') & (np.any(args.plot_types) != 'tavg_pwr'):
+# 	parser.error(f'No valid inputs given for --plot_types. Valid inputs are kurt and tavg_pwr. Inputs given: {args.plot_types}')
 # if len(args.plot_style) > 2:
 # 	parser.error(f'Expected 2 arguments for --plot_style, given {len(args.plot_style)}. Arguments given: {args.plot_style}')
 
@@ -108,19 +111,19 @@ if args.plot_types != None:
 	name_index_end = args.input_filename.rfind('.')
 	
 
-	# plot_mask_kurtosis(wf_in=wf, n_divs=args.ndivs, threshold=args.threshold,
+	# plot_mask_exkurt(wf_in=wf, n_divs=args.ndivs, threshold=args.threshold,
 	# 			unfiltered=True, clean_chnls=True, rfi=True,
 	# 			f_start=f_min, f_stop=f_max)
 	# TODO: Once you figure out how to do plot boundaries, put in k_start and k_stop! :D
-	if np.any(np.asarray(args.plot_types) == "sk"):
-		sk_plot_name = f'plot_sk_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{args.plot_file_types[0]}'
-		plot_mask_kurtosis(wf_in=wf, n_divs=args.ndivs, threshold=args.threshold,
+	if np.any(np.asarray(args.plot_types) == "kurt"):
+		kurt_plot_name = f'plot_kurt_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{args.plot_file_types[0]}'
+		plot_mask_exkurt(wf_in=wf, n_divs=args.ndivs, threshold=args.threshold,
 		     unfiltered=True, clean_chnls=True, rfi=True,
 			 f_start=f_min, f_stop=f_max,
-			 output_dest=os.path.join(args.plot_output_path, sk_plot_name))
+			 output_dest=os.path.join(args.plot_output_path, kurt_plot_name))
 			#  k_start=, k_stop=)
 
-		print(f'sk plot generated at {os.path.join(args.plot_output_path, sk_plot_name)}')
+		print(f'kurt plot generated at {os.path.join(args.plot_output_path, kurt_plot_name)}')
 	
 	if np.any(np.asarray(args.plot_types) == 'tavg_pwr'):
 		tavg_pwr_plot_name = f'plot_tavg_pwr_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{args.plot_file_types[0]}'
@@ -133,4 +136,4 @@ if args.plot_types != None:
 
 
 # plot_tavg_power(wf, f_start=f_min, f_stop=f_max, n_divs=args.ndivs, threshold=args.threshold)
-# plot_mask_kurtosis(wf)
+# plot_mask_exkurt(wf)
