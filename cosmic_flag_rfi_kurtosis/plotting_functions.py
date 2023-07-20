@@ -9,8 +9,8 @@ from analysis_functions import get_exkurt
 '''^^ This is definitely a stretch goal. It's more of an optimization thing.
 It would take some more structural changes I don't have time to deal with this summer!'''
 
-# TODO: Add output file functionality for different file types
-
+# Allows user to save figures as multiple file types at once
+# Credit: https://stackoverflow.com/questions/17279651/save-a-figure-with-multiple-extensions
 def save_fig(filename, types=['png']):
     fig = plt.gcf()
     for filetype in types:
@@ -36,6 +36,7 @@ def plot_tavg_power(wf_in,
     # Time average the power
     wf_pwr_mean_arr = np.mean(wf_in.data, axis=0)
     wf_pwr_mean = wf_pwr_mean_arr[0]
+    print(f'Shape of wf_pwr_mean: {np.shape(wf_pwr_mean)}')
    
     # Plot time-averaged power
     fig, ax = plt.subplots()
@@ -63,7 +64,7 @@ def plot_tavg_power(wf_in,
             xmax = rfi_bin + bin_width
             flagged_line = plt.axvspan(xmin=xmin, xmax=xmax, ymin=0, ymax=1, color='red', alpha=0.5)
 
-        flagged_line.set_label('RFI-flagged channels')
+        flagged_line.set_label('RFI-heavy channels')
         ax.legend(fancybox=True,shadow=True, loc='lower center', bbox_to_anchor=(1, 1), ncols=1)
     else:
         ax.legend(fancybox=True,shadow=True, loc='lower center', bbox_to_anchor=(1, 1), ncols=1)
