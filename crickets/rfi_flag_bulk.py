@@ -4,8 +4,8 @@ from blimpy import calcload, Waterfall
 import time
 import os
 import numpy as np
-from cricket.analysis import get_exkurt, write_output_table
-from cricket.plotting import plot_mask_exkurt, plot_tavg_power
+from crickets.analysis import get_exkurt, write_output_table
+from crickets.plotting import plot_mask_exkurt, plot_tavg_power
 
 # def file_checker(str):
 # 	if str[len(str) - 4:] != '.fil':

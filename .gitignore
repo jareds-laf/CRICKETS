@@ -3,6 +3,7 @@ __pycache__/
 .ipynb_checkpoints
 
 cosmic_flag_rfi_kurtosis.egg-info/
+cosmic_cricket.egg-info/
 cricket.egg-info/
 cricket.egg-info
 dist/
