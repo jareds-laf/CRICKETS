@@ -74,6 +74,7 @@ if (os.path.isfile(filfil) == False):
 # TODO: Figure out how to check for valid output filepath (might not need to do this)
 # Note: Data type checking is automatically covered, so long as you specify a type= ! :D
 
+# Generate waterfall object
 t0 = time.time()
 print('\nGenerating waterfall object...')
 ml = blimpy.calcload.calc_max_load(filfil)
@@ -81,6 +82,7 @@ wf = Waterfall(os.path.normpath(filfil), max_load = ml)
 t1 = time.time()
 print(f'Done. Elapsed time: {t1 - t0}')
 
+# Run analysis code and generate the output table
 write_output_table(wf_in=wf, output_filepath=args.output_filename, n_divs=args.ndivs, threshold=args.threshold)
 
 # TODO: Check to see if plot output and plot file types are given if -P is specified
@@ -96,7 +98,7 @@ print(f"Plot (bool): {args.plot}, {type(args.plot)}")
 print(f"Plot output path: {args.plot_output_path}, {type(args.plot_output_path)}")
 print(f"Plot file type(s): {args.plot_file_types}, {type(args.plot_file_types)}")
 
-
+# Plotting code
 if args.plot:
 		f_min = np.floor(np.amin(wf.get_freqs()))
 		f_max = np.ceil(np.amax(wf.get_freqs()))
@@ -109,7 +111,7 @@ if args.plot:
 			name_index_start = 1
 		name_index_end = args.input_filename.rfind('.')
 		
-
+		# Excess kurtosis plot
 		print("\nGenerating exkurt plot...")
 		exkurt_plot_name = f'plot_exkurt_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{args.plot_file_types}'
 		plot_mask_exkurt(wf_in=wf, n_divs=args.ndivs, threshold=args.threshold,
@@ -117,8 +119,11 @@ if args.plot:
 				f_start=f_min, f_stop=f_max,
 				output_dest=os.path.join(args.plot_output_path, exkurt_plot_name),
 				output_type=args.plot_file_types)
+			# TODO: Once you figure out how to do plot boundaries, put in k_start and k_stop! :D
+
 		print(f'exkurt plot generated at {os.path.join(args.plot_output_path, exkurt_plot_name)}')
 
+		# Time-averaged power spectrum plot
 		print("\nGenerating tavg_pwr plot...")
 		tavg_pwr_plot_name = f'plot_tavg_pwr_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{args.plot_file_types}'
 		plot_tavg_power(wf_in=wf, n_divs=args.ndivs, threshold=args.threshold,
@@ -126,50 +131,4 @@ if args.plot:
 				p_start=p_min, p_stop=p_max, show_filtered_bins=True,
 				output_dest=os.path.join(args.plot_output_path, tavg_pwr_plot_name),
 				output_type=args.plot_file_types)
-		
-		
 		print(f'tavg_pwr plot generated at {os.path.join(args.plot_output_path, tavg_pwr_plot_name)}')
-
-
-# if args.plot_types != None:
-# 	f_min = np.floor(np.amin(wf.get_freqs()))
-# 	f_max = np.ceil(np.amax(wf.get_freqs()))
-# 	p_min = np.floor(np.amin(wf.data))
-# 	p_max = np.ceil(np.amax(wf.data))
-
-# 	if args.input_filename.rfind('/') != -1:
-# 		name_index_start = args.input_filename.rfind('/') + 1
-# 	else:
-# 		name_index_start = 1
-# 	name_index_end = args.input_filename.rfind('.')
-	
-
-# 	# plot_mask_exkurt(wf_in=wf, n_divs=args.ndivs, threshold=args.threshold,
-# 	# 			unfiltered=True, clean_chnls=True, rfi=True,
-# 	# 			f_start=f_min, f_stop=f_max)
-# 	# TODO: Once you figure out how to do plot boundaries, put in k_start and k_stop! :D
-# 	if np.any(np.asarray(args.plot_types) == "exkurt"):
-# 		exkurt_plot_name = f'plot_exkurt_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{args.plot_file_types}'
-# 		plot_mask_exkurt(wf_in=wf, n_divs=args.ndivs, threshold=args.threshold,
-# 		     unfiltered=True, clean_chnls=True, rfi=True,
-# 			 f_start=f_min, f_stop=f_max,
-# 			 output_dest=os.path.join(args.plot_output_path, exkurt_plot_name),
-# 			 output_type=args.plot_file_types)
-# 			#  k_start=, k_stop=)
-
-# 		print(f'exkurt plot generated at {os.path.join(args.plot_output_path, exkurt_plot_name)}')
-	
-# 	if np.any(np.asarray(args.plot_types) == 'tavg_pwr'):
-# 		tavg_pwr_plot_name = f'plot_tavg_pwr_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{args.plot_file_types}'
-# 		plot_tavg_power(wf_in=wf, n_divs=args.ndivs, threshold=args.threshold,
-# 		   f_start=f_min, f_stop=f_max,
-# 		   p_start=p_min, p_stop=p_max, show_filtered_bins=True,
-# 		   output_dest=os.path.join(args.plot_output_path, tavg_pwr_plot_name),
-# 		   output_type=args.plot_file_types)
-		
-		
-# 		print(f'tavg_pwr plot generated at {os.path.join(args.plot_output_path, tavg_pwr_plot_name)}')
-
-
-# # plot_tavg_power(wf, f_start=f_min, f_stop=f_max, n_divs=args.ndivs, threshold=args.threshold)
-# # plot_mask_exkurt(wf)
