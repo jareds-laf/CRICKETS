@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-from cosmic_flag_rfi_kurtosis.analysis_functions import get_exkurt
+from cricket.analysis_functions import get_exkurt
 
 
 # TODO: Make it so that these functions access the table that

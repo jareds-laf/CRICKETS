@@ -1,16 +1,16 @@
 __pycache__/
-
 .ipynb_checkpoints/
 .ipynb_checkpoints
 
 cosmic_flag_rfi_kurtosis.egg-info/
-cosmic_flag_rfi_kurtosis.egg-info
+cricket.egg-info/
+cricket.egg-info
 dist/
 dist
 pyproject.toml
 
-cosmic_flag_rfi_kurtosis/requirements.txt
-cosmic_flag_rfi_kurtosis/anothertest.py.py
-cosmic_flag_rfi_kurtosis/requirements.txt
-cosmic_flag_rfi_kurtosis/say_hi.py
-cosmic_flag_rfi_kurtosis/test.py
+cricket/requirements.txt
+cricket/anothertest.py.py
+cricket/requirements.txt
+cricket/say_hi.py
+cricket/test.py
