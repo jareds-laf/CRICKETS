@@ -6,6 +6,7 @@ cosmic_flag_rfi_kurtosis.egg-info/
 cosmic_cricket.egg-info/
 cricket.egg-info/
 cricket.egg-info
+crickets.egg-info
 dist/
 dist
 pyproject.toml
