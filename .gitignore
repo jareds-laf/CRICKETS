@@ -11,8 +11,8 @@ dist/
 dist
 pyproject.toml
 
-cricket/requirements.txt
-cricket/anothertest.py.py
-cricket/requirements.txt
-cricket/say_hi.py
-cricket/test.py
+crickets/requirements.txt
+crickets/anothertest.py.py
+crickets/requirements.txt
+crickets/say_hi.py
+crickets/test.py
