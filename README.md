@@ -1,6 +1,6 @@
-# CRICKET
+# CRICKETS
 
-CRICKET (Categorization of RFI In COSMIC with Kurtosis for Extraterrestrial Searches) is a packaged designed to flag heavy RFI frequency bins in data that comes from [COSMIC](https://science.nrao.edu/facilities/vla/observing/cosmic-seti). This is accomplished by generated a time-averaged power spectrum from an input .fil file and analyzing the excess kurtosis (exkurt) of the power in a specified number of frequency bins.
+CRICKETS (Categorization of RFI In COSMIC with Kurtosis for Extraterrestrial Searches) is a packaged designed to flag heavy RFI frequency bins in data that comes from [COSMIC](https://science.nrao.edu/facilities/vla/observing/cosmic-seti). This is accomplished by generated a time-averaged power spectrum from an input .fil file and analyzing the excess kurtosis (exkurt) of the power in a specified number of frequency bins.
 
 In its current state, this package is **NOT** for differentiating any signals of scientific interest from RFI. Its strength is combing through observations of sources with little to no fine frequency emissions that could be mistaken for RFI. Assuming noise follows a Gaussian distribution, any frequency bins with an excess kurtosis outside of a specifiable range around 0 are likely RFI. With the limitations of this program in mind, the best use of this package is to flag frequency ranges that are heavy in RFI and masking these frequencies after the data from the primary observations have been collected. The package is also effective for studying the overall RFI environment of a series of observations at different times.
 
