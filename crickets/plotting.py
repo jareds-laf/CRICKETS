@@ -2,8 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import numpy.ma as ma
-from analysis import get_exkurt
-
+from crickets.analysis import get_exkurt
 
 # TODO: Make it so that these functions access the table that
 # was created by the write_output_table() function!
