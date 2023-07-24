@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-from crickets.analysis import get_exkurt
+import numpy.ma as ma
+from analysis import get_exkurt
 
 
 # TODO: Make it so that these functions access the table that
@@ -58,9 +59,17 @@ def plot_tavg_power(wf_in,
         full_freq_range = np.amax(wf_in.get_freqs()) - np.amin(wf_in.get_freqs())
         bin_width = full_freq_range / n_divs
 
-        for rfi_bin in flagged_bins:
+        for i, rfi_bin in enumerate(flagged_bins.filled(np.nan)):
             xmin = rfi_bin
             xmax = rfi_bin + bin_width
+            if i == 0:
+                print('\n\nI think this is where the problem is happening?')
+                print(f'Info about flagged_bins: {np.shape(flagged_bins)}, {type(flagged_bins)}, {ma.count(flagged_bins)}/{(ma.count_masked(flagged_bins) + ma.count(flagged_bins))}\n\n')
+                print(f'Here is flagged_bins: {flagged_bins}\n\n')
+                print('\n\nAnd here is a comparison of the shapes and counts of flagged_bins before and after using .filled:')
+                print(f'flagged_bins\n{np.shape(flagged_bins)}, {ma.count(flagged_bins)}, {ma.count_masked(flagged_bins)}')
+                print(f'flagged_bins.filled\n{np.shape(flagged_bins.filled(np.nan))}, {np.count_nonzero(~np.isnan(flagged_bins.filled(np.nan)))}, {np.count_nonzero(np.isnan(flagged_bins.filled(np.nan)))}')
+
             flagged_line = plt.axvspan(xmin=xmin, xmax=xmax, ymin=0, ymax=1, color='red', alpha=0.5)
 
         flagged_line.set_label('RFI-heavy channels')
@@ -88,16 +97,18 @@ def plot_mask_exkurt(wf_in, n_divs=256, threshold=50,
     
     bins, kurts, pows_mean, flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask = get_exkurt(wf_in, n_divs, threshold)
     
+    # Create the plot
     fig, ax = plt.subplots()
     
     ax.set_xlabel('Frequency (MHz)')
     ax.set_ylabel('Excess Kurtosis')
     
-    if unfiltered:
+    if unfiltered: # Plot all data
         ax.plot(bins, kurts, 'o', c='black', label='Unfiltered data') # Color is a nice black
-    if clean_chnls:
-        ax.plot(bins, masked_kurts, '.', c='#43cc5c', label='Clean channels') # Color is a nice green
-    if rfi:
+    if clean_chnls: # Plot the low RFI channels
+        print('\n\nConfirmation that we are running properly\n\n')
+        ax.plot(bins, masked_kurts.filled(np.nan), '.', c='#43cc5c', label='Clean channels') # Color is a nice green
+    if rfi: # Plot the high RFI channels
         ax.plot(flagged_bins, flagged_kurts, '.', c='red', label='Heavy RFI') # Color is a nice red
     
     # TODO: Change this condition... :)

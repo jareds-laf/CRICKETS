@@ -23,7 +23,7 @@
 # print(f"\n\n{os.path.realpath(os.path.expanduser(f'~/{cfrk}'))}")
 # # print(f"\n\n{os.path.expanduser('~/nrao_summer_2023')}")
 
-from nrao_summer_2023.cricket.cricket.plotting import save_fig
+from crickets.plotting import save_fig
 import matplotlib.pyplot as plt
 import numpy as np
 
