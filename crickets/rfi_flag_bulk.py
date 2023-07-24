@@ -4,8 +4,8 @@ from blimpy import calcload, Waterfall
 import time
 import os
 import numpy as np
-from crickets.analysis import get_exkurt, write_output_table
-from crickets.plotting import plot_mask_exkurt, plot_tavg_power
+from analysis import get_exkurt, write_output_table
+from plotting import plot_mask_exkurt, plot_tavg_power
 
 # def file_checker(str):
 # 	if str[len(str) - 4:] != '.fil':
@@ -63,6 +63,7 @@ parser.add_argument('--plot_output_path',
 
 args = parser.parse_args()
 
+# Normalize path to input filterbank file
 filfil = os.path.normpath(args.input_filename)
 
 # Check for valid filterbank file and output location
@@ -113,22 +114,37 @@ if args.plot:
 		
 		# Excess kurtosis plot
 		print("\nGenerating exkurt plot...")
-		exkurt_plot_name = f'plot_exkurt_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{args.plot_file_types}'
+		exkurt_plot_name = f'plot_exkurt_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}'
+		plot_names = []
+		for i in args.plot_file_types:
+			exec(f"exkurt_plot_name_{i} = f'plot_exkurt_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{i}'")
+			exec(f"plot_names.append(exkurt_plot_name_{i})")
+			# exec(f"print(exkurt_plot_name_{i})")
+
 		plot_mask_exkurt(wf_in=wf, n_divs=args.ndivs, threshold=args.threshold,
 				unfiltered=True, clean_chnls=True, rfi=True,
 				f_start=f_min, f_stop=f_max,
 				output_dest=os.path.join(args.plot_output_path, exkurt_plot_name),
 				output_type=args.plot_file_types)
 			# TODO: Once you figure out how to do plot boundaries, put in k_start and k_stop! :D
-
-		print(f'exkurt plot generated at {os.path.join(args.plot_output_path, exkurt_plot_name)}')
+		# for filetype in args.plot_file_types:
+		
+		for i in plot_names:
+			exec(f"print(f'exkurt plot generated at {os.path.join(args.plot_output_path, i)}')")
 
 		# Time-averaged power spectrum plot
 		print("\nGenerating tavg_pwr plot...")
-		tavg_pwr_plot_name = f'plot_tavg_pwr_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{args.plot_file_types}'
+		tavg_pwr_plot_name = f'plot_tavg_pwr_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}'
+		plot_names = []
+		for i in args.plot_file_types:
+			exec(f"tavg_pwr_plot_name_{i} = f'plot_tavg_pwr_{args.input_filename[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{i}'")
+			exec(f"plot_names.append(tavg_pwr_plot_name_{i})")
+
 		plot_tavg_power(wf_in=wf, n_divs=args.ndivs, threshold=args.threshold,
 				f_start=f_min, f_stop=f_max,
 				p_start=p_min, p_stop=p_max, show_filtered_bins=True,
 				output_dest=os.path.join(args.plot_output_path, tavg_pwr_plot_name),
 				output_type=args.plot_file_types)
-		print(f'tavg_pwr plot generated at {os.path.join(args.plot_output_path, tavg_pwr_plot_name)}')
+		
+		for i in plot_names:
+			exec(f"print(f'tavg_pwr plot generated at {os.path.join(args.plot_output_path, i)}')")

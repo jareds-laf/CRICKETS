@@ -11,6 +11,7 @@ from scipy.stats import norm, kurtosis
 import scipy
 import numpy.ma as ma
 import pandas as pd
+import csv
 
 def get_exkurt(wf_in, n_divs=256, threshold=50):
     # This function grabs the excess kurtosis of channels of a specified size for a blimpy waterfall object (section 1)
@@ -157,9 +158,10 @@ def write_output_table(wf_in, output_filepath='./', n_divs=256, threshold=50):
                                export_bin_tops,
                                export_bin_kurt], axis=1)
 
-    # Sort dataframes by frequency
-    export_df = export_concat.sort_values(by=['rfi_bin_bots']).reset_index(drop=True)
+    # Sort dataframe by frequency, remove pandas indexing, remove blank lines
+    export_df = export_concat.sort_values(by=['rfi_bin_bots']).reset_index(drop=True).dropna(how='all')
 
+    # Write dataframe to csv at export_path
     export_df.to_csv(export_path, index=False)
 
     return export_df

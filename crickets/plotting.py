@@ -36,7 +36,6 @@ def plot_tavg_power(wf_in,
     # Time average the power
     wf_pwr_mean_arr = np.mean(wf_in.data, axis=0)
     wf_pwr_mean = wf_pwr_mean_arr[0]
-    print(f'Shape of wf_pwr_mean: {np.shape(wf_pwr_mean)}')
    
     # Plot time-averaged power
     fig, ax = plt.subplots()
@@ -109,5 +108,5 @@ def plot_mask_exkurt(wf_in, n_divs=256, threshold=50,
         ax.legend(fancybox=True,shadow=True, loc='upper center', bbox_to_anchor=(0.5, 1.05), ncols=3)
     else:
         ax.legend(fancybox=True,shadow=True, loc='upper center', bbox_to_anchor=(0.5, 1.05), ncols=3)
-
+    
     save_fig(os.path.realpath(os.path.expanduser(output_dest)), types=output_type)
