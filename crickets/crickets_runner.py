@@ -1,11 +1,9 @@
 import argparse
-import blimpy
 from blimpy import calcload, Waterfall
 import time
 import os
 import numpy as np
-from analysis import get_exkurt, write_output_table, normalize_path
-from plotting import plot_exkurt, plot_tavg_power
+from analysis import get_exkurt, write_output_table, normalize_path, plot_exkurt, plot_tavg_power
 
 parser = argparse.ArgumentParser(
                     description='Flag RFI heavy frequency channels based on the excess kurtosis of each channel.')
@@ -91,7 +89,7 @@ if (os.path.isfile(out_path)) | (out_path[-4:] == '.csv'):
 # Generate waterfall object
 t0 = time.time()
 print('\nGenerating waterfall object...')
-ml = blimpy.calcload.calc_max_load(filfil)
+ml = calcload.calc_max_load(filfil)
 wf = Waterfall(os.path.normpath(filfil), max_load = ml)
 t1 = time.time()
 print(f'Done. Elapsed time: {t1 - t0}')
