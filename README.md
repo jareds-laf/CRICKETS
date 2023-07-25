@@ -67,7 +67,7 @@ The user can choose to generate two plots to aid them in their scientific endeav
 All functions of this package can be performed from the command line. The general syntax is as follows:
 
 ```
-python3 <path-to-rfi_flag_bulk.py> [Options]
+python3 <path-to-crickets_runner.py> [Options]
 ```
 
 Options:
@@ -81,11 +81,11 @@ Options:
 Use either of the following commands to list all options, as well!
 
 ```
-python3 <path-to-rfi_flag_bulk.py> -h
+python3 <path-to-crickets_runner.py> -h
 ``` 
 
 ```
-python3 <path-to-rfi_flag_bulk.py> --help
+python3 <path-to-crickets_runner.py> --help
 ```
 ## As a Python Package
 WIP!
@@ -97,13 +97,13 @@ WIP!
 The template for running analysis without generating plots is as follows:
 
 ```
-python3 <path/to/rfi_flag_bulk.py> --input_file <path/to/filterbank.fil> --output_filename <path/to/output.csv> -t <kurtosis_threshold> -n <number_of_bins>
+python3 <path/to/crickets_runner.py> --input_file <path/to/filterbank.fil> --output_filename <path/to/output.csv> -t <kurtosis_threshold> -n <number_of_bins>
 ```
 
 Here is an example with a minimum excess kurtosis threshold of 5 where the waterfall object gets broken into 256 frequency bins.
 
 ```
-python3 /home/alice/cosmic-flag-rfi-kurtosis/cosmic_flag_rfi_kurtosis/rfi_flag_bulk.py --input_file /home/alice/filterbank/filterbank1.fil --output_file /home/alice/example_output.csv -t 5 -n 256
+python3 /home/alice/cosmic-flag-rfi-kurtosis/cosmic_flag_rfi_kurtosis/crickets_runner.py --input_file /home/alice/filterbank/filterbank1.fil --output_file /home/alice/example_output.csv -t 5 -n 256
 ```
 
 Here is a screenshot of the output table taken in Microsoft Excel:
@@ -116,13 +116,13 @@ Here is a screenshot of the output table taken in Microsoft Excel:
 The template for running analysis and generating plots is as follows:
 
 ```
-python3 <path/to/rfi_flag_bulk.py> --input_file <path/to/filterbank.fil> --output_filename <path/to/output.csv> -t <kurtosis_threshold> -n <number_of_bins> -p <path/to/plots.png> --plot_file_types <.png, .jpg, .pdf>
+python3 <path/to/crickets_runner.py> --input_file <path/to/filterbank.fil> --output_filename <path/to/output.csv> -t <kurtosis_threshold> -n <number_of_bins> -p <path/to/plots.png> --plot_file_types <.png, .jpg, .pdf>
 ```
 
 Here is the same example as above (minimum excess kurtosis threshold of 5 with 256 frequency bins), this time generating the two plots.
 
 ```
-python3 /home/alice/cosmic-flag-rfi-kurtosis/cosmic_flag_rfi_kurtosis/rfi_flag_bulk.py --input_file /home/alice/filterbank/filterbank1.fil --output_file /home/alice/example_output.csv -t 5 -n 256 -p /home/alice/plots --plot_file_types png pdf jpg
+python3 /home/alice/cosmic-flag-rfi-kurtosis/cosmic_flag_rfi_kurtosis/crickets_runner.py --input_file /home/alice/filterbank/filterbank1.fil --output_file /home/alice/example_output.csv -t 5 -n 256 -p /home/alice/plots --plot_file_types png pdf jpg
 ```
 
 Here are some screenshots of the resulting plots.
