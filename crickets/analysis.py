@@ -13,6 +13,10 @@ import numpy.ma as ma
 import pandas as pd
 import csv
 
+def normalize_path(in_path):
+    # A quick function to ensure that any input paths are properly referenced
+	return os.path.normpath(os.path.realpath(os.path.expanduser(in_path)))
+
 def get_exkurt(wf_in, n_divs=256, threshold=50):
     # This function grabs the excess kurtosis of channels of a specified size for a blimpy waterfall object (section 1)
     # and flags bins with high excess kurtosis (i.e., heavy RFI) and returns the necessary information about these bins (section 2).
@@ -138,7 +142,7 @@ def write_output_table(wf_in, output_filepath='./', n_divs=256, threshold=50):
         # threshold: See get_exkurt() function definition
 
     # Assign all the base variables and ensure file export path (export_path) is normalized
-    export_path = os.path.normpath(output_filepath)
+    export_path = normalize_path(output_filepath)
     bins, kurts, pows_mean, flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask = get_exkurt(wf_in, n_divs, threshold)
 
     # Get bin tops
