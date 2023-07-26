@@ -55,9 +55,9 @@ def create_info_table(wf_file_full, saveloc="./"):
     pows_mean = np.mean(pows, axis=0)[0]
 
     # Create table with time-averaged power and frequencies
-    table = pd.DataFrame(columns=['Frequency (MHz)', 'Time-averaged power (counts)'])
-    table['Frequency (MHz)'] = freqs
-    table['Time-averaged power (counts)'] = pows_mean
+    table = pd.DataFrame(columns=['freq', 'tavg_power'])
+    table['freq'] = freqs
+    table['tavg_power'] = pows_mean
 
     # Save table
     save_path = os.path.join(saveloc, f'info_table_{wf_file}.csv')
@@ -65,12 +65,12 @@ def create_info_table(wf_file_full, saveloc="./"):
     
     print(f'\nInfo table saved to {save_path}\n')
 
-def get_exkurt(wf_in, n_divs=256, threshold=50):
+def get_exkurt(info_table, n_divs=256, threshold=50):
     """
     This function grabs the excess kurtosis of channels of a specified size for a blimpy waterfall object (section 1)
     and flags bins with high excess kurtosis (i.e., heavy RFI) and returns the necessary information about these bins (section 2).
     Inputs:
-        wf_in: Specified blimpy waterfall object
+        info_table: Location of the info table containing the frequencies and time-averaged powers
         n_divs: Number of divisions to break wf_in into
             32 is the correct number of channels to break a waterfall into assuming the frequency range
             of the waterfall is 32 MHz
@@ -80,29 +80,20 @@ def get_exkurt(wf_in, n_divs=256, threshold=50):
 ##### Section 1 #####
 
     # TODO: Update this!
-    # Get power and frequency in increasing order
-    if wf_in.header['foff'] < 0:
-        pows_flipped = np.flip(wf_in.data)
-        freqs_flipped = wf_in.get_freqs()[::-1]
-    else:
-        pows_flipped = wf_in.data
-        freqs_flipped = wf_in.get_freqs()
-
-    # Time-average the power
-    pows_mean_flipped = np.mean(pows_flipped, axis=0)[0]   
+    # Get frequencies and powers from info_table
+    info_table = normalize_path(info_table)
+    info_table_read = pd.read_csv(info_table)
+    freqs = np.array(info_table_read['freq'])
+    pows = np.array(info_table_read['tavg_power'])
 
     # Split frequency and time-averaged power into n_divs channels
-    freqs = np.array_split(freqs_flipped, n_divs)
-    pows_mean = np.array_split(pows_mean_flipped, n_divs)
-    
-    # So:
-    # pows_flipped is all of the powers in increasing order,
-    # freqs_flipped is all of the frequencies in increasing order
+    freqs = np.array_split(freqs, n_divs)
+    pows = np.array_split(pows, n_divs)
     
     # Get excess kurtosis of all channels
     exkurts_list = []
     
-    for division in pows_mean:
+    for division in pows:
         exkurts_list.append(kurtosis(division/(10**9))) # Rescaling data so that excess kurtosis != inf ever (hopefully)
     
     exkurts = np.array(exkurts_list, dtype=np.float64)
@@ -137,11 +128,9 @@ def get_exkurt(wf_in, n_divs=256, threshold=50):
     # are converted to NaNs.
     print(f'{len(np.where(bin_mask == True)[0])} out of {n_divs} channels flagged as having substantial RFI')
     
-    # Get frequency in increasing order, first
-    if wf_in.header['foff'] < 0:
-        freqs_flipped = wf_in.get_freqs()[::-1]
-        freqs = ma.masked_array(freqs_flipped)
-    
+
+    # TODO: Make sure this isn't completely broken!
+
     # Bin width (for the files I am testing this with):
     # There are 7 Hz in between each entry of freqs, and 32 MHz total
     # Given a total of 4194304 elements in freqs, if there are 256 bins, then each bin spans 16384 elements
@@ -172,36 +161,46 @@ def get_exkurt(wf_in, n_divs=256, threshold=50):
     # Summary of returned variables:
         # bins: All frequency bins for the frequency range of the waterfall
         # kurts: Excess kurtosis of all frequency bins
-        # pows_mean: Time-averaged power of each frequency bin
+        # pows: Time-averaged power of each frequency bin
         # flagged_bins: Channels with high excess kurtosis (i.e., high RFI)
         # flagged_kurts: Excess kurtosis of each channel that was flagged as having high RFI
         # masked_kurts: Excess kurtosis of all 'clean' (low RFI) channels with high RFI channels masked out
         # masked_freqs: List of all frequencies with high RFI channels masked out
         # bin_mask: The mask used to generate masked_kurts -- Masks the frequency *bins*
         # freq_mask: A mask to be used to block out the *actual* frequencies, rather than the frequency *bins*
-    return bins, exkurts, pows_mean, flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask
+    return bins, exkurts, pows, flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask
 
-def write_output_table(wf_in, output_filepath='./', n_divs=256, threshold=50, all=False):
+def write_output_table(info_table, output_filepath='./', n_divs=256, threshold=50, all=False):
     """This function does as it says: It writes the output table. It does so in a .csv format with columns of:
         (bin_top) Frequency bin tops
         (bin_bot) Frequency bin bottoms
         (exkurt) Excess kurtosis of each bin
     Inputs:
+        info_table: Location of the info table containing the frequencies and time-averaged powers
         output_filepath: Path to output .csv file
-        wf_in: See get_exkurt() function definition
         n_divs: See get_exkurt() function definition
         threshold: See get_exkurt() function definition
         all: If True, include all frequency bins in the output table, even if they are not flagged as RFI. If False, only the flagged bins will be included in the output table."""
 
+
+
+
     # Assign all the base variables and ensure file export path (export_path) is normalized
     export_path = normalize_path(output_filepath)
-    bins, kurts, pows_mean, flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask = get_exkurt(wf_in, n_divs, threshold)
+    bins, kurts, pows, flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask = get_exkurt(info_table, n_divs, threshold)
+
+    # Get frequencies and powers from info_table
+    info_table = normalize_path(info_table)
+    info_table_read = pd.read_csv(info_table)
 
     # Get bin tops
-    bin_width = (np.amax(wf_in.get_freqs()) - np.amin(wf_in.get_freqs())) / n_divs
-    bin_tops = flagged_bins + bin_width
+    freqs = np.array(info_table_read['freq'])
+    max_freq = np.amax(freqs)
+    min_freq = np.amin(freqs)
+    bin_width_elements = int(np.floor(len(freqs) / n_divs)) # Grab the bin width in terms of the number of elements per bin
+    bin_tops = flagged_bins + bin_width_elements
 
-    # Format flagged_bins into a regular (not masked) numpy array
+    # Format flagged_bins into a regular (non-masked) numpy array
     flagged_bins = ma.filled(flagged_bins, fill_value=np.NaN)
 
     # Turns the numpy arrays into pandas dataframes so they can be concatenated and exported
@@ -225,7 +224,7 @@ def write_output_table(wf_in, output_filepath='./', n_divs=256, threshold=50, al
         # Parts of this comment as well as the lines in this part of the function were written by GitHub copilot.
         # It just knew what to type!
         all_bin_bots = pd.DataFrame(data=bins, columns=['all_bin_bots'])
-        all_bin_tops = pd.DataFrame(data=bins + bin_width, columns=['all_bin_tops'])
+        all_bin_tops = pd.DataFrame(data=bins + bin_width_elements, columns=['all_bin_tops'])
         all_bin_kurt = pd.DataFrame(data=kurts, columns=['all_kurt'])
 
         all_concat = pd.concat([all_bin_bots, all_bin_tops, all_bin_kurt], axis=1)

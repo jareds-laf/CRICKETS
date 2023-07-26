@@ -39,7 +39,7 @@ pip install -i https://test.pypi.org/simple/ crickets
 ```
 
 # Summary of the Process
-As of July 25th, 2023, most of the functionality of this package works! Some of it is still a work in progress. Within the coming weeks, most bugs should be ironed out and every function listed below should be implemented :)
+As of July 26th, 2023, the functionality of this package is broken! Therefore, this section is outdated. We are currently in the process of making it easier to run multiple filterbank files through CRICKETS. Within the coming days, most of this functionality should be implemented, and we will then be able to update this section. :)
 
 ## Flow of Analysis
 An input filterbank file is used to generate a [blimpy](https://github.com/UCBerkeleySETI/blimpy) waterfall object. The power is then averaged over the time domain, and the waterfall object is split into a specifiable number of frequency bins. The default number of bins is 256. So as to avoid any infinite excess kurtosis, the data is rescaled. Then, the excess kurtosis of each bin is then calculated using [scipy](https://github.com/scipy/scipy), and bins with a high* excess kurtosis are flagged. The data is once again checked for any unwanted infinities. The high RFI bins are output in a .csv file with the following columns:
