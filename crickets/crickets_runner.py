@@ -89,13 +89,7 @@ if (os.path.isfile(out_path)) | (out_path[-4:] == '.csv'):
 	# print("The output file is a file.")
 	output_file_loc = out_path
 
-# Generate waterfall object
-t0 = time.time()
-print('\nGenerating waterfall object...')
-ml = calcload.calc_max_load(filfil)
-wf = Waterfall(os.path.normpath(filfil), max_load = ml)
-t1 = time.time()
-print(f'Done. Elapsed time: {t1 - t0}')
+
 
 # Run analysis code and generate the output table
 write_output_table(wf_in=wf, output_filepath=output_file_loc, n_divs=args.ndivs, threshold=args.threshold, all=args.all_freqs)

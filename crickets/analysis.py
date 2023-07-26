@@ -4,6 +4,9 @@ from scipy.stats import norm, kurtosis
 import numpy.ma as ma
 import pandas as pd
 import matplotlib.pyplot as plt
+from blimpy import Waterfall
+from blimpy import calcload
+import time
 
 ##### Analysis functions #####
 
@@ -11,18 +14,72 @@ def normalize_path(in_path):
     # A quick function to ensure that any input paths are properly referenced
 	return os.path.normpath(os.path.realpath(os.path.expanduser(in_path)))
 
+def create_info_table(wf_file_full, saveloc="./"):
+    """
+    This function creates a table containing the time-averaged power and frequencies as read from an input filterbank file.
+    It does so by initializing a blimpy Waterfall object and then averaging the power.
+    It outputs the time-averaged power and frequencies into a .csv file in a specified location.
+    
+    Inputs:
+        wf_file_full: Input filterbank file
+        saveloc: Location to save output table (NOT including file name)
+    """
+    # Normalize save path and path to wf_file_full
+    saveloc = normalize_path(saveloc)
+    wf_file_full = normalize_path(wf_file_full)
+
+    # Get file name    
+    wf_file = os.path.basename(wf_file_full)[:os.path.basename(wf_file_full).find('.')]
+
+    # Initialize blimpy waterfall object
+    t0 = time.time()
+    print('\nGenerating waterfall object...')
+    ml = calcload.calc_max_load(wf_file_full)
+    wf = Waterfall(os.path.normpath(wf_file_full), max_load = ml)
+    t1 = time.time()
+    print(f'Done. Elapsed time: {t1 - t0}')
+
+    # Get power and frequency in increasing order
+    if wf.header['foff'] < 0:
+        pows = np.flip(wf.data)
+        freqs = wf.get_freqs()[::-1]
+    else:
+        pows = wf.data
+        freqs = wf.get_freqs()
+
+    # So:
+    # pows_flipped is all of the powers in increasing order,
+    # freqs_flipped is all of the frequencies in increasing order
+
+    # Time-average the power
+    pows_mean = np.mean(pows, axis=0)[0]
+
+    # Create table with time-averaged power and frequencies
+    table = pd.DataFrame(columns=['Frequency (MHz)', 'Time-averaged power (counts)'])
+    table['Frequency (MHz)'] = freqs
+    table['Time-averaged power (counts)'] = pows_mean
+
+    # Save table
+    save_path = os.path.join(saveloc, f'info_table_{wf_file}.csv')
+    table.to_csv(save_path, index=False)
+    
+    print(f'\nInfo table saved to {save_path}\n')
+
 def get_exkurt(wf_in, n_divs=256, threshold=50):
-    # This function grabs the excess kurtosis of channels of a specified size for a blimpy waterfall object (section 1)
-    # and flags bins with high excess kurtosis (i.e., heavy RFI) and returns the necessary information about these bins (section 2).
-    # Inputs:
-        # wf_in: Specified blimpy waterfall object
-        # n_divs: Number of divisions to break wf_in into
-            # 32 is the correct number of channels to break a waterfall into assuming the frequency range
-            # of the waterfall is 32 MHz
-        # threshold: Minimum excess kurtosis for a channel to be flagged as 'RFI-heavy'
+    """
+    This function grabs the excess kurtosis of channels of a specified size for a blimpy waterfall object (section 1)
+    and flags bins with high excess kurtosis (i.e., heavy RFI) and returns the necessary information about these bins (section 2).
+    Inputs:
+        wf_in: Specified blimpy waterfall object
+        n_divs: Number of divisions to break wf_in into
+            32 is the correct number of channels to break a waterfall into assuming the frequency range
+            of the waterfall is 32 MHz
+        threshold: Minimum excess kurtosis for a channel to be flagged as 'RFI-heavy'
+    """
 
 ##### Section 1 #####
 
+    # TODO: Update this!
     # Get power and frequency in increasing order
     if wf_in.header['foff'] < 0:
         pows_flipped = np.flip(wf_in.data)
@@ -125,16 +182,16 @@ def get_exkurt(wf_in, n_divs=256, threshold=50):
     return bins, exkurts, pows_mean, flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask
 
 def write_output_table(wf_in, output_filepath='./', n_divs=256, threshold=50, all=False):
-    # This function does as it says: It writes the output table. It does so in a .csv format with columns of:
-        # (bin_top) Frequency bin tops
-        # (bin_bot) Frequency bin bottoms
-        # (exkurt) Excess kurtosis of each bin
-    # Inputs:
-        # output_filepath: Path to output .csv file
-        # wf_in: See get_exkurt() function definition
-        # n_divs: See get_exkurt() function definition
-        # threshold: See get_exkurt() function definition
-        # all: If True, include all frequency bins in the output table, even if they are not flagged as RFI. If False, only the flagged bins will be included in the output table.
+    """This function does as it says: It writes the output table. It does so in a .csv format with columns of:
+        (bin_top) Frequency bin tops
+        (bin_bot) Frequency bin bottoms
+        (exkurt) Excess kurtosis of each bin
+    Inputs:
+        output_filepath: Path to output .csv file
+        wf_in: See get_exkurt() function definition
+        n_divs: See get_exkurt() function definition
+        threshold: See get_exkurt() function definition
+        all: If True, include all frequency bins in the output table, even if they are not flagged as RFI. If False, only the flagged bins will be included in the output table."""
 
     # Assign all the base variables and ensure file export path (export_path) is normalized
     export_path = normalize_path(output_filepath)
@@ -192,8 +249,8 @@ def write_output_table(wf_in, output_filepath='./', n_divs=256, threshold=50, al
 It would take some more structural changes I don't have time to deal with this summer!'''
 
 def save_fig(filename, types=['png']):
-    # Allows user to save figures as multiple file types at once
-    # Credit: https://stackoverflow.com/questions/17279651/save-a-figure-with-multiple-extensions
+    """Allows user to save figures as multiple file types at once
+    Credit: https://stackoverflow.com/questions/17279651/save-a-figure-with-multiple-extensions"""
     fig = plt.gcf()
     for filetype in types:
         fig.savefig(f'{normalize_path(filename)}.{filetype}')
@@ -203,17 +260,17 @@ def plot_tavg_power(wf_in,
                     p_start=0, p_stop=5*10**10, n_divs=256, threshold=50,
                     show_filtered_bins=True,
                     output_dest='', output_type=['png']):
-    # Plot the time-averaged power spectrum for a given blimpy waterfall object
-    # Inputs:
-        # wf: The desired input waterfall object
-        # t: The integration number
-        # f_start: Lower bound for frequency (horizontal) axis
-        # f_stop: Upper bound for frequency (horizontal) axis
-        # p_start: Lower bound for time-averaged power (veritcal) axis
-        # p_start: Lower bound for time-averaged power (veritcal) axis
-        # show_filtered: If true, mark high RFI channels with a vertical red box
-        # output_dest: Location (including filename) to save output file
-        # output_type: Filetype of output
+    """Plot the time-averaged power spectrum for a given blimpy waterfall object
+    Inputs:
+        wf: The desired input waterfall object
+        t: The integration number
+        f_start: Lower bound for frequency (horizontal) axis
+        f_stop: Upper bound for frequency (horizontal) axis
+        p_start: Lower bound for time-averaged power (veritcal) axis
+        p_start: Lower bound for time-averaged power (veritcal) axis
+        show_filtered: If true, mark high RFI channels with a vertical red box
+        output_dest: Location (including filename) to save output file
+        output_type: Filetype of output"""
 
     # Time average the power
     wf_pwr_mean_arr = np.mean(wf_in.data, axis=0)
@@ -257,16 +314,16 @@ def plot_exkurt(wf_in, n_divs=256, threshold=50,
                       f_start=2000, f_stop=4000,
                       k_start=-5, k_stop=500,
                       output_dest='', output_type='png'):
-    # This function plots the excess kurtosis of each frequency channel for a specified waterfall object.
-    # Inputs:
-        # wf_in: See get_exkurt() function definition
-        # n_divs: See get_exkurt() function definition
-        # threshold: See get_exkurt() function definition
-        # unfiltered: If true, plot the data before any RFI filtering has occurred
-        # clean_chnls: If true, plot the data after RFI has been filtered out
-        # rfi: If true, plot the channels that have been marked as RFI
-        # output_dest: Location (including filename) to save output file
-        # output_type: Filetype of output
+    """This function plots the excess kurtosis of each frequency channel for a specified waterfall object.
+    Inputs:
+        wf_in: See get_exkurt() function definition
+        n_divs: See get_exkurt() function definition
+        threshold: See get_exkurt() function definition
+        unfiltered: If true, plot the data before any RFI filtering has occurred
+        clean_chnls: If true, plot the data after RFI has been filtered out
+        rfi: If true, plot the channels that have been marked as RFI
+        output_dest: Location (including filename) to save output file
+        output_type: Filetype of output"""
     
     bins, kurts, pows_mean, flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask = get_exkurt(wf_in, n_divs, threshold)
     
