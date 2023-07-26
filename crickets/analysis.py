@@ -124,7 +124,7 @@ def get_exkurt(wf_in, n_divs=256, threshold=50):
         # freq_mask: A mask to be used to block out the *actual* frequencies, rather than the frequency *bins*
     return bins, exkurts, pows_mean, flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask
 
-def write_output_table(wf_in, output_filepath='./', n_divs=256, threshold=50):
+def write_output_table(wf_in, output_filepath='./', n_divs=256, threshold=50, all=False):
     # This function does as it says: It writes the output table. It does so in a .csv format with columns of:
         # (bin_top) Frequency bin tops
         # (bin_bot) Frequency bin bottoms
@@ -134,6 +134,7 @@ def write_output_table(wf_in, output_filepath='./', n_divs=256, threshold=50):
         # wf_in: See get_exkurt() function definition
         # n_divs: See get_exkurt() function definition
         # threshold: See get_exkurt() function definition
+        # all: If True, include all frequency bins in the output table, even if they are not flagged as RFI. If False, only the flagged bins will be included in the output table.
 
     # Assign all the base variables and ensure file export path (export_path) is normalized
     export_path = normalize_path(output_filepath)
@@ -162,7 +163,24 @@ def write_output_table(wf_in, output_filepath='./', n_divs=256, threshold=50):
     # Write dataframe to csv at export_path
     export_df.to_csv(export_path, index=False)
 
-    return export_df
+    if all:
+        # Quick shout out to GitHub copilot for helping me write this function! :)
+        # Parts of this comment as well as the lines in this part of the function were written by GitHub copilot.
+        # It just knew what to type!
+        all_bin_bots = pd.DataFrame(data=bins, columns=['all_bin_bots'])
+        all_bin_tops = pd.DataFrame(data=bins + bin_width, columns=['all_bin_tops'])
+        all_bin_kurt = pd.DataFrame(data=kurts, columns=['all_kurt'])
+
+        all_concat = pd.concat([all_bin_bots, all_bin_tops, all_bin_kurt], axis=1)
+        export_all_df = all_concat.sort_values(by=['all_bin_bots']).reset_index(drop=True).dropna(how='all')
+        export_path_all = export_path.replace('.csv', '_all.csv')
+
+        print(f"\nAll table output location: {export_path_all}\n")
+
+
+        export_all_df.to_csv(export_path_all, index=False)
+    else:
+        return export_df
 
 
 ##### Plotting functions #####

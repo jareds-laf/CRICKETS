@@ -75,8 +75,9 @@ Options:
 - ```--output_file``` (Required) Path to output csv file (optionally including file name).
 - ```--threshold, -t``` (Required) Minimum value of excess kurtosis used to flag channels with significant RFI. Can be any decimal number.
 - ```--ndivs, -n``` (Required) Number of frequency bins to split waterfall object into. Can be any integer.
+- ```--all_freqs, -a``` (Optional) Choose whether or not to include all frequency bins in the output table, even if they are not flagged as RFI. If this is not specified, only the flagged bins will be included in the output table.
 - ```--plot, -p``` (Optional) Choose whether or not to generate time-averaged power spectrum and excess kurtosis vs. frequency plots. Give output path for plots here (NOT including file name).
-- ```plot_file_types``` (Optional, unless -p is given) Output file types (can be pdf, png, and/or jpg). Specify as many of these as you want! 
+- ```plot_file_types, --pft``` (Optional, unless -p is given) Output file types (can be pdf, png, and/or jpg). Specify as many of these as you want! 
 - ```--verbose, -v``` (Optional) Print more information about the input variables and the processes currently running.
 Use either of the following commands to list all options, as well!
 

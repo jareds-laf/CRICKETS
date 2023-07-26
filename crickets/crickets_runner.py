@@ -8,6 +8,7 @@ from analysis import get_exkurt, write_output_table, normalize_path, plot_exkurt
 parser = argparse.ArgumentParser(
                     description='Flag RFI heavy frequency channels based on the excess kurtosis of each channel.')
 
+# Input/analysis arguments
 parser.add_argument('--input_file',
 		    help='(Required) Path to input filterbank file (including file name).', 
 			type=str,
@@ -26,26 +27,22 @@ parser.add_argument('--ndivs', '-n',
 			type=int,
 		    default=256,
 			required=True)
+parser.add_argument('--all_freqs', '-a',
+		    help='(Optional) Choose whether or not to include all frequency bins in the output table, even if they are not flagged as RFI. If this is not specified, only the flagged bins will be included in the output table.',
+		    action='store_true',
+			required=False)
 
+# Plotting arguments
 # TODO: Better implementation of the plotting arguments!
 parser.add_argument('--plot', '-p',
 		    help='(Optional) Choose whether or not to generate time-averaged power spectrum and excess kurtosis vs. frequency plots. Give output path for plots here (NOT including file name).',
 			# action='store_true',
 			type=str,
 			required=False)
-parser.add_argument('--plot_file_types',
+parser.add_argument('--plot_file_types', '--pft',
 			help='(Optional, unless -p is given) Output file types (can be pdf, png, and/or jpg). Specify as many of these as you want!',
 			choices=['png', 'pdf', 'jpg'],
 			nargs='+',
-			required=False)
-# parser.add_argument('--plot_output_path',
-# 		    help='(Optional, unless -p is given) ',
-# 			type=str,
-# 			required=False)
-
-parser.add_argument('--verbose', '-v',
-		    help='(Optional) Print more information about the input variables and the processes currently running.',
-			action='store_true',
 			required=False)
 # parser.add_argument('-p', '--plot_types',
 # 		    help='(Optional) List of plot types. tavg_pwr: Time-averaged power spectrum. exkurt: Excess kurtosis vs. frequency plot.',
@@ -58,6 +55,12 @@ parser.add_argument('--verbose', '-v',
 # parser.add_argument('--plot_bnds',
 # 		    help='(Optional) x and y bounds for plots.',
 # 			required=False)
+
+# Miscellaneous arguments
+parser.add_argument('--verbose', '-v',
+		    help='(Optional) Print more information about the input variables and the processes currently running.',
+			action='store_true',
+			required=False)
 
 args = parser.parse_args()
 
@@ -77,13 +80,13 @@ if (os.path.isfile(filfil) == False):
 if os.path.isdir(out_path):
 	if out_path[-1] != '/':
 		out_path += '/'
-		print("The output file path is a directory.")
+		# print("The output file path is a directory.")
 		output_file_loc = out_path + f"crickets_{args.input_file[args.input_file.rfind('/')+1:len(args.input_file)-4]}_{args.ndivs}_{args.threshold}.csv"
 	else:
-		print("The output file path is a directory.")
+		# print("The output file path is a directory.")
 		output_file_loc = out_path + f"crickets_{args.input_file[args.input_file.rfind('/')+1:len(args.input_file)-4]}_{args.ndivs}_{args.threshold}.csv"
 if (os.path.isfile(out_path)) | (out_path[-4:] == '.csv'):
-	print("The output file is a file.")
+	# print("The output file is a file.")
 	output_file_loc = out_path
 
 # Generate waterfall object
@@ -95,7 +98,7 @@ t1 = time.time()
 print(f'Done. Elapsed time: {t1 - t0}')
 
 # Run analysis code and generate the output table
-write_output_table(wf_in=wf, output_filepath=output_file_loc, n_divs=args.ndivs, threshold=args.threshold)
+write_output_table(wf_in=wf, output_filepath=output_file_loc, n_divs=args.ndivs, threshold=args.threshold, all=args.all_freqs)
 print(f'Output table generated at {output_file_loc}')
 # TODO: Check to see if plot output and plot file types are given if -p is specified
 
@@ -157,6 +160,7 @@ if args.verbose:
 	print(f"Output filename: {args.output_file}, {type(args.output_file)}")
 	print(f"Threshold: {args.threshold}, {type(args.threshold)}")
 	print(f"Number of bins: {args.ndivs}, {type(args.ndivs)}")
+	print(f"All: {args.all_freqs}, {type(args.all_freqs)}")
 	print(f"Plot (bool): {args.plot}, {type(args.plot)}")
-	# print(f"Plot output path: {args.plot_output_path}, {type(args.plot_output_path)}")
 	print(f"Plot file type(s): {args.plot_file_types}, {type(args.plot_file_types)}")
+	print(F"Verbose: {args.verbose}, {type(args.verbose)}")
