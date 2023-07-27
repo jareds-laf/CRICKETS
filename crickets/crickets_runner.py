@@ -156,9 +156,6 @@ for it in info_table_list:
 	if args.plot:
 			
 			logger.debug(f"Freqs:\n {freqs}, {type(freqs)}")
-			# logger.debug(f"\nMaximums: {}, {np.ceil(pows.max())}")
-			# logger.debug(f"\nMinimums: {np.floor(freqs.min())}, {np.floor(pows.min())}")
-
 
 			f_min = np.floor(np.ceil(freqs.min()))
 			f_max = np.ceil(np.ceil(freqs.max()))
