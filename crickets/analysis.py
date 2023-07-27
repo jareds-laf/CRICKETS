@@ -8,6 +8,8 @@ from blimpy import Waterfall
 from blimpy import calcload
 import time
 import glob
+import logging
+
 
 ##### Analysis functions #####
 
@@ -163,7 +165,7 @@ def get_exkurt(info_table, n_divs=256, threshold=50):
     bin_width = full_freq_range / n_divs
 
 
-    print(f"\n\n\nBin width in terms of f: {bin_width}\n\n\n")
+    logging.debug(f"\n\n\nBin width in terms of f: {bin_width}\n\n\n")
     
     # Grab the bin width in terms of the number of elements per bin
     bin_width_elements = int(np.floor(len(freqs) / n_divs))
@@ -225,20 +227,20 @@ def write_output_table(info_table, output_filepath='./', n_divs=256, threshold=5
     # bin_tops = [freqs[int(b + bin_width_elements)] for b in flagged_bins if not np.ma.is_masked(b)]
     
     full_freq_range = freqs[-1] - freqs[0]
-    print(f"full_freq_range: {full_freq_range}")
+    # print(f"full_freq_range: {full_freq_range}")
     bin_width = full_freq_range / n_divs
-    print(f"bin_width: {bin_width}")
-    bin_tops = []
+    # print(f"bin_width: {bin_width}")
+    bin_tops = ma.masked_array([])
     for bin_bot in flagged_bins:
-        bin_tops.append(bin_bot + bin_width)
+        bin_tops = ma.append(bin_tops, bin_bot + bin_width)
 
-    print(f"bin_tops: {bin_tops}")
+    # print(f"bin_tops: {bin_tops}")
     # Get bin tops
 
 
-    print(f"\nFlagged bins: {flagged_bins}, {type(flagged_bins)}")
-    print(f"\nBin width elements kurts: {bin_width_elements}, {type(bin_width_elements)}")
-    print(f"\nBin tops: {bin_tops}, {type(bin_tops)}, {len(bin_tops)}")
+    # print(f"\nFlagged bins: {flagged_bins}, {type(flagged_bins)}")
+    # print(f"\nBin width elements kurts: {bin_width_elements}, {type(bin_width_elements)}")
+    # print(f"\nBin tops: {bin_tops}, {type(bin_tops)}, {len(bin_tops)}")
 
     # Format flagged_bins into a regular (non-masked) numpy array
     flagged_bins = ma.filled(flagged_bins, fill_value=np.NaN)
@@ -276,7 +278,7 @@ def write_output_table(info_table, output_filepath='./', n_divs=256, threshold=5
         export_all_df = all_concat.sort_values(by=['all_bin_bots']).reset_index(drop=True).dropna(how='all')
         export_path_all = export_path.replace('.csv', '_all.csv')
 
-        print(f"\nAll table output location: {export_path_all}\n")
+        logging.info(f"\nAll table output location: {export_path_all}\n")
 
 
         export_all_df.to_csv(export_path_all, index=False)
@@ -317,8 +319,15 @@ def plot_tavg_power(info_table,
         output_type: Filetype of output"""
 
     # Get frequencies and powers from info_table    
-    freqs = np.array(info_table['freq'])
-    pows = np.array(info_table['tavg_pows'])
+
+
+    info_table_read = pd.read_csv(info_table)
+    logging.debug(f"info_table: {type(info_table)}, {info_table}")
+    logging.debug(f"info_table_read: {type(info_table_read)}, {info_table_read}")
+
+
+    freqs = np.array(info_table_read['freq'])
+    pows = np.array(info_table_read['tavg_power'])
 
     # Plot time-averaged power
     fig, ax = plt.subplots()
