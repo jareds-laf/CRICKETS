@@ -9,11 +9,6 @@ import sys
 import pandas as pd
 import logging
 
-# logging.basicConfig(filename='crickets_analysis.log',
-#                     level=logging.INFO,
-#                     format='\n%(asctime)s %(levelname)s %(name)s %(message)s')
-
-
 ##### Setup parser #####
 
 parser = argparse.ArgumentParser(
@@ -81,21 +76,13 @@ args = parser.parse_args()
 
 ##### Setup logging #####
 
-
 # Create logger and console handler
 logger = logging.getLogger('crickets_runner')
+logger.propagate = False
 ch = logging.StreamHandler()
 
-# Set logging level based on whether or not --verbose (-v) is specified
-if args.verbose:
-	logger.setLevel(logging.DEBUG)
-	ch.setLevel(logging.DEBUG)
-else:
-	logger.setLevel(logging.INFO)
-	ch.setLevel(logging.INFO)
-	
 # Create formatter
-formatter = logging.Formatter('\n%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter('%(asctime)s :: %(name)s :: %(levelname)s :: %(message)s')
 
 # Add formatter to ch
 ch.setFormatter(formatter)
@@ -103,9 +90,15 @@ ch.setFormatter(formatter)
 # Add ch to logger
 logger.addHandler(ch)
 
+# Set logging level based on whether or not --verbose (-v) is specified
+if args.verbose:
+	logger.setLevel(logging.INFO)
+	ch.setLevel(logging.INFO)
+else:
+	logger.setLevel(logging.WARNING)
+	ch.setLevel(logging.WARNING)
 
 ##### Main code #####
-
 
 # Normalize specified paths
 filfil = normalize_path(args.input_file)
@@ -144,7 +137,7 @@ if (os.path.isfile(out_path)) | (out_path[-4:] == '.csv'):
 info_table_list = glob.glob(os.path.join(itloc, f'info_table*.csv'))
 if info_table_list == []:
 	parser.error(f"No info tables found in {itloc}. Make sure you ran info_table_gen.py, and that the info tables are in the correct directory and are named correctly.")
-logging.debug(f"\ninfo_table_list: {info_table_list}")
+logger.debug(f"\ninfo_table_list: {info_table_list}")
 # info_table = pd.read_csv(itloc)
 
 # Run analysis code and generate the output tables for each info table
@@ -156,7 +149,7 @@ for it in info_table_list:
 
 
 	write_output_table(info_table=it, output_filepath=output_file_loc, n_divs=args.ndivs, threshold=args.threshold, all=args.all_freqs)
-	logging.info(f'Output table generated at {output_file_loc}')
+	logger.info(f'Output table generated at {output_file_loc}')
 	# TODO: Check to see if plot output and plot file types are given if -p is specified
 
 	# Plotting code
@@ -185,13 +178,12 @@ for it in info_table_list:
 			name_index_end = args.input_file.rfind('.')
 			
 			# Excess kurtosis plot
-			print("\nGenerating exkurt plot...")
+			logger.info("Generating exkurt plot...")
 			exkurt_plot_name = f'plot_exkurt_{args.input_file[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}'
 			plot_names = []
 			for i in args.plot_file_types:
 				exec(f"exkurt_plot_name_{i} = f'plot_exkurt_{args.input_file[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{i}'")
 				exec(f"plot_names.append(exkurt_plot_name_{i})")
-				# exec(f"print(exkurt_plot_name_{i})")
 
 			plot_exkurt(info_table=it, n_divs=args.ndivs, threshold=args.threshold,
 					unfiltered=True, clean_chnls=True, rfi=True,
@@ -199,21 +191,17 @@ for it in info_table_list:
 					output_dest=os.path.join(args.plot, exkurt_plot_name),
 					output_type=args.plot_file_types)
 				# TODO: Once you figure out how to do plot boundaries, put in k_start and k_stop! :D
-			# for filetype in args.plot_file_types:
 			
 			for i in plot_names:
-				exec(f"print(f'exkurt plot generated at {os.path.join(args.plot, i)}')")
+				exec(f"logger.info(f'exkurt plot generated at {os.path.join(args.plot, i)}')")
 
 			# Time-averaged power spectrum plot
-			print("\nGenerating tavg_power plot...")
+			logger.info("\nGenerating tavg_power plot...")
 			tavg_pwr_plot_name = f'plot_tavg_pwr_{args.input_file[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}'
 			plot_names = []
 			for i in args.plot_file_types:
 				exec(f"tavg_pwr_plot_name_{i} = f'plot_tavg_pwr_{args.input_file[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{i}'")
 				exec(f"plot_names.append(tavg_pwr_plot_name_{i})")
-
-
-			logger.info(f"it right before the cringe error is thrown: {it}, {type(it)}")
 
 			plot_tavg_power(info_table=it, n_divs=args.ndivs, threshold=args.threshold,
 					f_start=f_min, f_stop=f_max,
@@ -222,20 +210,17 @@ for it in info_table_list:
 					output_type=args.plot_file_types)
 			
 			for i in plot_names:
-				exec(f"print(f'tavg_pwr plot generated at {os.path.join(args.plot, i)}')")
+				exec(f"logger.info(f'tavg_pwr plot generated at {os.path.join(args.plot, i)}')")
 
 # Verbose outputs
 # TODO: Fix the way verbose is handled to use logging/logger!
-if args.verbose:
 	# Print argument values in case something isn't working :)
-	print("\nArgument values:")
-	print(f"Input filename: {args.input_file}, {type(args.input_file)}")
-	print(f"Output filename: {args.output_file}, {type(args.output_file)}")
-	print(f"Threshold: {args.threshold}, {type(args.threshold)}")
-	print(f"Number of bins: {args.ndivs}, {type(args.ndivs)}")
-	print(f"All: {args.all_freqs}, {type(args.all_freqs)}")
-	print(f"Plot (bool): {args.plot}, {type(args.plot)}")
-	print(f"Plot file type(s): {args.plot_file_types}, {type(args.plot_file_types)}")
-	print(F"Verbose: {args.verbose}, {type(args.verbose)}")
-
-# logger.info('End of script.')
+	logger.info("\nArgument values:")
+	logger.info(f"Input filename: {args.input_file}, {type(args.input_file)}")
+	logger.info(f"Output filename: {args.output_file}, {type(args.output_file)}")
+	logger.info(f"Threshold: {args.threshold}, {type(args.threshold)}")
+	logger.info(f"Number of bins: {args.ndivs}, {type(args.ndivs)}")
+	logger.info(f"All: {args.all_freqs}, {type(args.all_freqs)}")
+	logger.info(f"Plot (bool): {args.plot}, {type(args.plot)}")
+	logger.info(f"Plot file type(s): {args.plot_file_types}, {type(args.plot_file_types)}")
+	logger.info(F"Verbose: {args.verbose}, {type(args.verbose)}")
