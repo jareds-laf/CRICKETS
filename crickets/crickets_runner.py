@@ -5,7 +5,6 @@ import os
 import numpy as np
 from analysis import get_exkurt, write_output_table, normalize_path, plot_exkurt, plot_tavg_power
 import glob
-import sys
 import pandas as pd
 import logging
 
@@ -82,7 +81,7 @@ logger.propagate = False
 ch = logging.StreamHandler()
 
 # Create formatter
-formatter = logging.Formatter('%(asctime)s :: %(name)s :: %(levelname)s :: %(message)s')
+formatter = logging.Formatter('%(asctime)s :: %(levelname)s :: %(name)s :: line %(lineno)d :: %(message)s')
 
 # Add formatter to ch
 ch.setFormatter(formatter)
@@ -108,15 +107,12 @@ itloc = normalize_path(args.info_table_loc)
 # Check for valid filterbank file and output location
 if (filfil[len(filfil) - 4:] != '.fil'):
 	parser.error(f'Input file must be a valid filterbank (.fil) file. Specified input file path: {filfil}')
-	sys.exit()
 if (os.path.isfile(filfil) == False):
 	parser.error(f'Input file cannot be found. Make sure to include the file name in the path. Specified input file: {filfil}')
-	sys.exit()
 
 # Check to see if info table location is valid
 if (os.path.isdir(itloc) == False):
 	parser.error(f'Info table location is not a valid directory. Specified info table location: {itloc}')
-	sys.exit()
 
 # TODO: Figure out how to check for valid output filepath (might not need to do this)
 # Note: Data type checking is automatically covered, so long as you specify a type= ! :D

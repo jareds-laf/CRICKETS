@@ -17,7 +17,7 @@ logger.propagate = False
 ch = logging.StreamHandler()
 
 # Create formatter
-formatter = logging.Formatter('%(asctime)s :: %(name)s :: %(levelname)s :: %(message)s')
+formatter = logging.Formatter('%(asctime)s :: %(levelname)s :: %(name)s :: line %(lineno)d :: %(message)s')
 
 # Add formatter to ch
 ch.setFormatter(formatter)
@@ -61,21 +61,26 @@ def create_info_table(wf_file_full, saveloc="./"):
     logger.info(f'\nDone. Elapsed time: {t1 - t0}')
 
     # Get power and frequency in increasing order
+    logger.info('\nGetting power and frequency in increasing order...')
     if wf.header['foff'] < 0:
         pows = np.flip(wf.data)
         freqs = wf.get_freqs()[::-1]
     else:
         pows = wf.data
         freqs = wf.get_freqs()
+    logger.info('\nDone.')
 
     # So:
     # pows_flipped is all of the powers in increasing order,
     # freqs_flipped is all of the frequencies in increasing order
 
     # Time-average the power
+    logger.info('\nTime-averaging power...')
     pows_mean = np.mean(pows, axis=0)[0]
+    logger.info('\nDone.')
 
     # Create table with time-averaged power and frequencies
+    logger.info('\nCreating and saving table...')
     table = pd.DataFrame(columns=['freq', 'tavg_power'])
     table['freq'] = freqs
     table['tavg_power'] = pows_mean
@@ -84,7 +89,7 @@ def create_info_table(wf_file_full, saveloc="./"):
     save_path = os.path.join(saveloc, f'info_table_{wf_file}.csv')
     table.to_csv(save_path, index=False)
     
-    logger.info(f'\nInfo table saved to {save_path}\n')
+    logger.info(f'\nDone. Info table saved to {save_path}\n')
     t_final = time.time()
     logger.info(f'\nTotal elapsed time: {t_final - t_init}')
 
@@ -163,10 +168,8 @@ def get_exkurt(info_table, n_divs=256, threshold=50):
     flagged_bins = ma.masked_array(bins, mask=~bin_mask)
     flagged_kurts = ma.masked_array(exkurts, mask=~bin_mask)
     
-    # The reason I am no longer using ma.count(masked_array) is because there can be an error where masked elements
-    # are converted to NaNs.
-    logger.info(f'{len(np.where(bin_mask == True)[0])} out of {n_divs} channels flagged as having substantial RFI')
-    
+    logger.info(f'{ma.count(flagged_bins)} out of {n_divs} channels flagged as having substantial RFI')
+
 
     # TODO: Make sure this isn't completely broken!
 
@@ -180,7 +183,7 @@ def get_exkurt(info_table, n_divs=256, threshold=50):
     bin_width = full_freq_range / n_divs
 
 
-    logger.debug(f"\n\n\nBin width in terms of f: {bin_width}\n\n\n")
+    logger.debug(f"\nBin width in terms of f: {bin_width}\n")
     
     # Grab the bin width in terms of the number of elements per bin
     bin_width_elements = int(np.floor(len(freqs) / n_divs))
@@ -310,7 +313,8 @@ def save_fig(filename, types=['png']):
     """
     fig = plt.gcf()
     for filetype in types:
-        fig.savefig(f'{normalize_path(filename)}.{filetype}')
+        logger.debug(f"Figure file type: {filetype}")
+        fig.savefig(f'{normalize_path(filename)}.{filetype}', dpi=300, bbox_inches='tight')
 
 def plot_tavg_power(info_table,
                     f_start=0, f_stop=6000,
@@ -321,19 +325,17 @@ def plot_tavg_power(info_table,
     Plot the time-averaged power spectrum for a given blimpy waterfall object
     Inputs:
         info_table: Location of the info table containing the frequencies and time-averaged powers (including file name)
-        t: The integration number
         f_start: Lower bound for frequency (horizontal) axis
         f_stop: Upper bound for frequency (horizontal) axis
         p_start: Lower bound for time-averaged power (veritcal) axis
         p_start: Lower bound for time-averaged power (veritcal) axis
-        show_filtered: If true, mark high RFI channels with a vertical red box
+        show_filtered_bins: If true, mark high RFI channels with a vertical red box
         output_dest: Location (including filename) to save output file
         output_type: Filetype of output
     """
 
     # Get frequencies and powers from info_table    
-
-
+    wf_name = info_table[info_table.rfind('/')+12:-4]
     info_table_read = pd.read_csv(info_table)
     logger.debug(f"info_table: {type(info_table)}, {info_table}")
     logger.debug(f"info_table_read: {type(info_table_read)}, {info_table_read}")
@@ -350,6 +352,7 @@ def plot_tavg_power(info_table,
     
     ax.set_xlabel('Frequency (MHz)')
     ax.set_ylabel('Time-Averaged Power (Counts)')
+    ax.set_title(f'Time-Averaged Power Spectrum of\n{wf_name} (n_divs={n_divs}, threshold={threshold})', y=1.06)
 
     ax.plot(freqs, pows,
             label='Time-averaged power spectrum',
@@ -370,11 +373,14 @@ def plot_tavg_power(info_table,
             flagged_line = plt.axvspan(xmin=xmin, xmax=xmax, ymin=0, ymax=1, color='red', alpha=0.5)
 
         flagged_line.set_label('Dirty channels')
-        ax.legend(fancybox=True,shadow=True, loc='lower center', bbox_to_anchor=(1, 1), ncols=1)
+        ax.legend(fancybox=True, shadow=True, loc='lower center', bbox_to_anchor=(0.5, 0.91), ncols=1)
     else:
-        ax.legend(fancybox=True,shadow=True, loc='lower center', bbox_to_anchor=(1, 1), ncols=1)
+        ax.legend(fancybox=True, shadow=True, loc='lower center', bbox_to_anchor=(0.5, 0.91), ncols=1)
+    
+    save_fig(os.path.join(normalize_path(output_dest), f'plot_tavg_power_{wf_name}_{n_divs}_{threshold}'), types=output_type)
 
-    save_fig(os.path.realpath(os.path.expanduser(output_dest)), types=output_type)
+    for filetype in output_type:
+        logging.info(f"tavg_power plot ({filetype}) generated at {os.path.join(normalize_path(output_dest), f'plot_tavg_power_{wf_name}_{n_divs}_{threshold}_{filetype}')}")
 
 def plot_exkurt(info_table, n_divs=256, threshold=50,
                        unfiltered=True, clean_chnls=True, rfi=False,
@@ -393,15 +399,17 @@ def plot_exkurt(info_table, n_divs=256, threshold=50,
         output_dest: Location (including filename) to save output file
         output_type: Filetype of output
     """
-    
+    wf_name = info_table[info_table.rfind('/')+12:-4]
     bins, kurts, pows_mean, flagged_bins, flagged_kurts, masked_kurts, masked_freqs, bin_mask, freq_mask = get_exkurt(info_table, n_divs, threshold)
     
     # Create the plot
     fig, ax = plt.subplots()
     
+    # plt.figure(figsize=(100, 100))
     ax.set_xlabel('Frequency (MHz)')
     ax.set_ylabel('Excess Kurtosis')
-    
+    ax.set_title(f"Excess Kurtosis of\n{wf_name} (n_divs={n_divs}, threshold={threshold})", y=1.06)
+
     # Plot all data
     if unfiltered:
         ax.plot(bins, kurts, 'o', c='black', label='Unfiltered data') # Color is a nice black
@@ -415,12 +423,18 @@ def plot_exkurt(info_table, n_divs=256, threshold=50,
         ax.plot(flagged_bins, flagged_kurts, '.', c='red', label='Dirty channels') # Color is a nice red
     
     # TODO: Change this condition... :)
-    if np.any([f_start, f_stop, k_start, k_stop]) != 0:
-        ax.set_xlim(f_start, f_stop)
-        ax.set_ylim(k_start, k_stop)
+    # if np.any([f_start, f_stop, k_start, k_stop]) != 0:
+    ax.set_xlim(f_start, f_stop)
+    ax.set_ylim(k_start, k_stop)
+
+    ax.legend(fancybox=True,shadow=True, loc='lower center', bbox_to_anchor=(0.5, 0.95), ncols=3)
+    # else:
+    #     ax.legend(fancybox=True,shadow=True, loc='upper center', bbox_to_anchor=(0.5, 1.05), ncols=3)
     
-        ax.legend(fancybox=True,shadow=True, loc='upper center', bbox_to_anchor=(0.5, 1.05), ncols=3)
-    else:
-        ax.legend(fancybox=True,shadow=True, loc='upper center', bbox_to_anchor=(0.5, 1.05), ncols=3)
-    
-    save_fig(os.path.realpath(os.path.expanduser(output_dest)), types=output_type)
+
+    print(f"output destination: {os.path.join('plot_exkurt', normalize_path(output_dest), wf_name)}")
+
+    save_fig(os.path.join(normalize_path(output_dest), f'plot_exkurt_{wf_name}_{n_divs}_{threshold}'), types=output_type)
+
+    for filetype in output_type:
+        logging.info(f"exkurt plot ({filetype}) generated at {os.path.join(normalize_path(output_dest), f'plot_exkurt_{wf_name}_{n_divs}_{threshold}_{filetype}')}")

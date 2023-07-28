@@ -17,3 +17,7 @@ crickets/requirements.txt
 crickets/say_hi.py
 crickets/test.py
 crickets/testlogging.py
+
+test_crickets/test_crickets.py
+test_crickets
+test_crickets.py
