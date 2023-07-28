@@ -103,7 +103,7 @@ def create_info_table_dir(wf_dir, saveloc):
         saveloc: Location to save output table (NOT including file name)
     """
 
-    file_list = glob.glob(wf_dir + '/*.fil')
+    file_list = glob.glob(wf_dir + '/*beam0001.fil')
 
     for file in file_list:
         create_info_table(wf_file_full=file, saveloc=saveloc)
