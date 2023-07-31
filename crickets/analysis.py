@@ -17,7 +17,7 @@ logger.propagate = False
 ch = logging.StreamHandler()
 
 # Create formatter
-formatter = logging.Formatter('%(asctime)s :: %(levelname)s :: %(name)s :: line %(lineno)d :: %(message)s')
+formatter = logging.Formatter('%(asctime)s :: %(levelname)s :: %(name)s, %(funcName)s :: line %(lineno)d :: %(message)s')
 
 # Add formatter to ch
 ch.setFormatter(formatter)
@@ -318,7 +318,7 @@ def save_fig(filename, types=['png']):
     fig = plt.gcf()
     for filetype in types:
         logger.debug(f"Figure file type: {filetype}")
-        logger.debug(f"Saving figure as {filename}.{filetype}")
+        logger.debug(f"Saving figure as {normalize_path(filename)}.{filetype}")
         fig.savefig(f'{normalize_path(filename)}.{filetype}', dpi=300, bbox_inches='tight')
 
 def plot_tavg_power(info_table,
@@ -385,7 +385,7 @@ def plot_tavg_power(info_table,
     save_fig(os.path.join(normalize_path(output_dest), f'plot_tavg_power_{wf_name}_{n_divs}_{threshold}'), types=output_type)
 
     for filetype in output_type:
-        logging.info(f"tavg_power plot ({filetype}) generated at {os.path.join(normalize_path(output_dest), f'plot_tavg_power_{wf_name}_{n_divs}_{threshold}_{filetype}')}")
+        logging.info(f"tavg_power plot ({filetype}) generated at {os.path.join(normalize_path(output_dest), f'plot_tavg_power_{wf_name}_{n_divs}_{threshold}.{filetype}')}")
 
 def plot_exkurt(info_table, n_divs=256, threshold=50,
                        unfiltered=True, clean_chnls=True, rfi=False,
@@ -436,9 +436,10 @@ def plot_exkurt(info_table, n_divs=256, threshold=50,
     # else:
     #     ax.legend(fancybox=True,shadow=True, loc='upper center', bbox_to_anchor=(0.5, 1.05), ncols=3)
     
-
-    logger.info(f"output destination: {os.path.join('plot_exkurt', normalize_path(output_dest), wf_name)}")
+    print()
+    logger.debug(f"exkurt output destination: {os.path.join(normalize_path(output_dest), f'plot_exkurt_{wf_name}_{n_divs}_{threshold}')}")
+    print()
     save_fig(os.path.join(normalize_path(output_dest), f'plot_exkurt_{wf_name}_{n_divs}_{threshold}'), types=output_type)
 
     for filetype in output_type:
-        logging.info(f"exkurt plot ({filetype}) generated at {os.path.join(normalize_path(output_dest), f'plot_exkurt_{wf_name}_{n_divs}_{threshold}_{filetype}')}")
+        logging.info(f"exkurt plot ({filetype}) generated at {os.path.join(normalize_path(output_dest), f'plot_exkurt_{wf_name}_{n_divs}_{threshold}.{filetype}')}")

@@ -81,7 +81,7 @@ logger.propagate = False
 ch = logging.StreamHandler()
 
 # Create formatter
-formatter = logging.Formatter('%(asctime)s :: %(levelname)s :: %(name)s :: line %(lineno)d :: %(message)s')
+formatter = logging.Formatter('%(asctime)s :: %(levelname)s :: %(name)s, %(funcName)s :: line %(lineno)d :: %(message)s')
 
 # Add formatter to ch
 ch.setFormatter(formatter)
@@ -173,10 +173,15 @@ for it in info_table_list:
 			# Excess kurtosis plot
 			logger.info("Generating exkurt plot...")
 			exkurt_plot_name = f'plot_exkurt_{args.input_file[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}'
-			plot_names = []
-			for i in args.plot_file_types:
-				exec(f"exkurt_plot_name_{i} = f'plot_exkurt_{args.input_file[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{i}'")
-				exec(f"plot_names.append(exkurt_plot_name_{i})")
+			# plot_names = []
+			# for i in args.plot_file_types:
+			# 	exec(f"exkurt_plot_name_{i} = f'plot_exkurt_{args.input_file[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{i}'")
+			# 	exec(f"plot_names.append(exkurt_plot_name_{i})")
+			# 	print()
+			# 	print("plot names item")
+			# 	exec(f"logger.info(plot_names.append(exkurt_plot_name_{i}))")
+			# 	print()
+			# 	print()
 
 			plot_exkurt(info_table=it, n_divs=args.ndivs, threshold=args.threshold,
 					unfiltered=True, clean_chnls=True, rfi=True,
@@ -185,16 +190,17 @@ for it in info_table_list:
 					output_type=args.plot_file_types)
 				# TODO: Once you figure out how to do plot boundaries, put in k_start and k_stop! :D
 			
-			for i in plot_names:
-				exec(f"logger.info(f'exkurt plot generated at {os.path.join(args.plot, i)}')")
+			# for i in plot_names:
+			# 	exec(f"logger.info(f'exkurt plot generated at {os.path.join(args.plot, i)}')")
 
 			# Time-averaged power spectrum plot
-			logger.info("\nGenerating tavg_power plot...")
+			print()
+			logger.info("Generating tavg_power plot...")
 			tavg_pwr_plot_name = f'plot_tavg_pwr_{args.input_file[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}'
-			plot_names = []
-			for i in args.plot_file_types:
-				exec(f"tavg_pwr_plot_name_{i} = f'plot_tavg_pwr_{args.input_file[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{i}'")
-				exec(f"plot_names.append(tavg_pwr_plot_name_{i})")
+			# plot_names = []
+			# for i in args.plot_file_types:
+			# 	exec(f"tavg_pwr_plot_name_{i} = f'plot_tavg_pwr_{args.input_file[name_index_start:name_index_end]}_{args.ndivs}_{args.threshold}.{i}'")
+			# 	exec(f"plot_names.append(tavg_pwr_plot_name_{i})")
 
 			plot_tavg_power(info_table=it, n_divs=args.ndivs, threshold=args.threshold,
 					f_start=f_min, f_stop=f_max,
@@ -202,13 +208,15 @@ for it in info_table_list:
 					output_dest=normalize_path(args.plot),
 					output_type=args.plot_file_types)
 			
-			for i in plot_names:
-				exec(f"logger.info(f'tavg_pwr plot generated at {os.path.join(args.plot, i)}')")
+			# for i in plot_names:
+			# 	gen_at_loc = normalize_path(f"{args.plot}.{i}")
+			# 	exec(f"logger.info(f'tavg_pwr plot generated at {gen_at_loc}')")
 
 # TODO: Fix the way verbose is handled to use logging/logger!
 # Verbose outputs
 	# Print argument values in case something isn't working :)
-	logger.info("\nArgument values:")
+	print()
+	logger.info("Argument values:")
 	logger.info(f"Input filename: {args.input_file}, {type(args.input_file)}")
 	logger.info(f"Output filename: {args.output_file}, {type(args.output_file)}")
 	logger.info(f"Threshold: {args.threshold}, {type(args.threshold)}")
