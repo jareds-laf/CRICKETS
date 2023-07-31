@@ -50,11 +50,15 @@ def create_info_table(wf_file_full, saveloc="./"):
     wf_file_full = normalize_path(wf_file_full)
 
     # Get file name    
-    wf_file = os.path.basename(wf_file_full)[:os.path.basename(wf_file_full).find('.')]
+    basename = os.path.basename(wf_file_full)
+    wf_file = basename[:-4]
+    logger.info(f"\nwf_file: {wf_file}\n")
 
     # Initialize blimpy waterfall object
     t0 = time.time()
     logger.info('\nGenerating waterfall object...')
+    logger.info(f'\nReading {wf_file_full}...')
+
     ml = calcload.calc_max_load(wf_file_full)
     wf = Waterfall(os.path.normpath(wf_file_full), max_load = ml)
     t1 = time.time()
@@ -314,6 +318,7 @@ def save_fig(filename, types=['png']):
     fig = plt.gcf()
     for filetype in types:
         logger.debug(f"Figure file type: {filetype}")
+        logger.debug(f"Saving figure as {filename}.{filetype}")
         fig.savefig(f'{normalize_path(filename)}.{filetype}', dpi=300, bbox_inches='tight')
 
 def plot_tavg_power(info_table,
@@ -348,7 +353,7 @@ def plot_tavg_power(info_table,
     fig, ax = plt.subplots()
     
     ax.set_xlim(f_start, f_stop)
-    ax.set_ylim(p_start, p_stop)
+    ax.set_ylim(p_start, np.amax(pows)/50)
     
     ax.set_xlabel('Frequency (MHz)')
     ax.set_ylabel('Time-Averaged Power (Counts)')
@@ -432,8 +437,7 @@ def plot_exkurt(info_table, n_divs=256, threshold=50,
     #     ax.legend(fancybox=True,shadow=True, loc='upper center', bbox_to_anchor=(0.5, 1.05), ncols=3)
     
 
-    print(f"output destination: {os.path.join('plot_exkurt', normalize_path(output_dest), wf_name)}")
-
+    logger.info(f"output destination: {os.path.join('plot_exkurt', normalize_path(output_dest), wf_name)}")
     save_fig(os.path.join(normalize_path(output_dest), f'plot_exkurt_{wf_name}_{n_divs}_{threshold}'), types=output_type)
 
     for filetype in output_type:

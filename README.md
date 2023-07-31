@@ -90,11 +90,11 @@ python3 <path-to-crickets_runner.py> [Options]
 
 #### Options:
 - ```--input_file``` (Required) Path to input filterbank file (including file name).
-- ```--output_file``` (Required) Path to output csv file (optionally including file name).
+- ```--output_file``` (Required) Path to output csv file containing frequency bin bottoms, frequency bin tops, and excess kurtosis of each bin (optionally including file name).
+- ```--info_table_loc```, ```-i``` (Required) Directory to find info tables.
 - ```--threshold```, ```-t``` (Required) Minimum value of excess kurtosis used to flag channels with significant RFI. Can be any decimal number.
 - ```--ndivs```, ```-n``` (Required) Number of frequency bins to split waterfall object into. Can be any integer.
 - ```--all_freqs```, ```-a``` (Optional) Choose whether or not to include all frequency bins in the output table, even if they are not flagged as RFI. If this is not specified, only the flagged bins will be included in the output table.
-- ```--info_table_loc```, ```-i``` (Required) Directory to find info tables.
 - ```--plot```, ```-p``` (Optional) Choose whether or not to generate time-averaged power spectrum and excess kurtosis vs. frequency plots. Give output path for plots here (NOT including file name).
 - ```plot_file_types```, ```--pft``` (Optional, unless -p is given) Output file types (can be pdf, png, and/or jpg). Specify as many of these as you want! 
 - ```--verbose```, ```-v``` (Optional) Print more information about the input variables and the processes currently running.

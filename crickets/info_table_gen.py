@@ -36,7 +36,7 @@ args = parser.parse_args()
 wf_path = normalize_path(args.wf_path)
 itloc = normalize_path(args.info_table_loc)
 
-create_info_table(wf_dir=wf_path, saveloc=itloc)
+create_info_table(wf_file_full=wf_path, saveloc=itloc)
 
 """
 An interesting way to save the info table location

@@ -22,6 +22,10 @@ parser.add_argument('--output_file',
 		    help='(Required) Path to output csv file (optionally including file name).',
 			type=str,
 			required=True)
+parser.add_argument('--info_table_loc', '-i',
+		    help='(Required) Directory to find info tables.',
+			type=str,
+			required=True)
 parser.add_argument('--threshold', '-t',
 		    help='(Required) Minimum value of excess kurtosis used to flag channels with significant RFI. Can be any decimal number.',
 			type=float,
@@ -36,10 +40,6 @@ parser.add_argument('--all_freqs', '-a',
 		    help='(Optional) Choose whether or not to include all frequency bins in the output table, even if they are not flagged as RFI. If this is not specified, only the flagged bins will be included in the output table.',
 		    action='store_true',
 			required=False)
-parser.add_argument('--info_table_loc', '-i',
-		    help='(Required) Directory to find info tables.',
-			type=str,
-			required=True)
 
 # Plotting arguments
 # TODO: Better implementation of the plotting arguments!
@@ -120,10 +120,10 @@ if (os.path.isdir(itloc) == False):
 if os.path.isdir(out_path):
 	if out_path[-1] != '/':
 		out_path += '/'
-		# print("The output file path is a directory.")
+		logger.debug("The output file path is a directory.")
 		output_file_loc = out_path + f"crickets_{args.input_file[args.input_file.rfind('/')+1:len(args.input_file)-4]}_{args.ndivs}_{args.threshold}.csv"
 	else:
-		# print("The output file path is a directory.")
+		logger.debug("The output file path is a directory.")
 		output_file_loc = out_path + f"crickets_{args.input_file[args.input_file.rfind('/')+1:len(args.input_file)-4]}_{args.ndivs}_{args.threshold}.csv"
 if (os.path.isfile(out_path)) | (out_path[-4:] == '.csv'):
 	# print("The output file is a file.")
@@ -181,7 +181,7 @@ for it in info_table_list:
 			plot_exkurt(info_table=it, n_divs=args.ndivs, threshold=args.threshold,
 					unfiltered=True, clean_chnls=True, rfi=True,
 					f_start=f_min, f_stop=f_max,
-					output_dest=os.path.join(args.plot, exkurt_plot_name),
+					output_dest=normalize_path(args.plot),
 					output_type=args.plot_file_types)
 				# TODO: Once you figure out how to do plot boundaries, put in k_start and k_stop! :D
 			
@@ -199,14 +199,14 @@ for it in info_table_list:
 			plot_tavg_power(info_table=it, n_divs=args.ndivs, threshold=args.threshold,
 					f_start=f_min, f_stop=f_max,
 					p_start=p_min, p_stop=p_max, show_filtered_bins=True,
-					output_dest=os.path.join(args.plot, tavg_pwr_plot_name),
+					output_dest=normalize_path(args.plot),
 					output_type=args.plot_file_types)
 			
 			for i in plot_names:
 				exec(f"logger.info(f'tavg_pwr plot generated at {os.path.join(args.plot, i)}')")
 
-# Verbose outputs
 # TODO: Fix the way verbose is handled to use logging/logger!
+# Verbose outputs
 	# Print argument values in case something isn't working :)
 	logger.info("\nArgument values:")
 	logger.info(f"Input filename: {args.input_file}, {type(args.input_file)}")
