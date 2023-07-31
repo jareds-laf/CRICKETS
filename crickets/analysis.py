@@ -52,39 +52,39 @@ def create_info_table(wf_file_full, saveloc="./"):
     # Get file name    
     basename = os.path.basename(wf_file_full)
     wf_file = basename[:-4]
-    logger.info(f"\nwf_file: {wf_file}\n")
+    logger.info(f"wf_file: {wf_file}\n")
 
     # Initialize blimpy waterfall object
     t0 = time.time()
-    logger.info('\nGenerating waterfall object...')
-    logger.info(f'\nReading {wf_file_full}...')
+    logger.info('Generating waterfall object...')
+    logger.info(f'Reading {wf_file_full}...')
 
     ml = calcload.calc_max_load(wf_file_full)
     wf = Waterfall(os.path.normpath(wf_file_full), max_load = ml)
     t1 = time.time()
-    logger.info(f'\nDone. Elapsed time: {t1 - t0}')
+    logger.info(f'Done. Elapsed time: {t1 - t0}')
 
     # Get power and frequency in increasing order
-    logger.info('\nGetting power and frequency in increasing order...')
+    logger.info('Getting power and frequency in increasing order...')
     if wf.header['foff'] < 0:
         pows = np.flip(wf.data)
         freqs = wf.get_freqs()[::-1]
     else:
         pows = wf.data
         freqs = wf.get_freqs()
-    logger.info('\nDone.')
+    logger.info('Done.')
 
     # So:
     # pows_flipped is all of the powers in increasing order,
     # freqs_flipped is all of the frequencies in increasing order
 
     # Time-average the power
-    logger.info('\nTime-averaging power...')
+    logger.info('Time-averaging power...')
     pows_mean = np.mean(pows, axis=0)[0]
-    logger.info('\nDone.')
+    logger.info('Done.')
 
     # Create table with time-averaged power and frequencies
-    logger.info('\nCreating and saving table...')
+    logger.info('Creating and saving table...')
     table = pd.DataFrame(columns=['freq', 'tavg_power'])
     table['freq'] = freqs
     table['tavg_power'] = pows_mean
@@ -93,9 +93,9 @@ def create_info_table(wf_file_full, saveloc="./"):
     save_path = os.path.join(saveloc, f'info_table_{wf_file}.csv')
     table.to_csv(save_path, index=False)
     
-    logger.info(f'\nDone. Info table saved to {save_path}\n')
+    logger.info(f'Done. Info table saved to {save_path}\n')
     t_final = time.time()
-    logger.info(f'\nTotal elapsed time: {t_final - t_init}')
+    logger.info(f'Total elapsed time: {t_final - t_init}')
 
 def create_info_table_dir(wf_dir, saveloc):
     """
@@ -436,9 +436,7 @@ def plot_exkurt(info_table, n_divs=256, threshold=50,
     # else:
     #     ax.legend(fancybox=True,shadow=True, loc='upper center', bbox_to_anchor=(0.5, 1.05), ncols=3)
     
-    print()
     logger.debug(f"exkurt output destination: {os.path.join(normalize_path(output_dest), f'plot_exkurt_{wf_name}_{n_divs}_{threshold}')}")
-    print()
     save_fig(os.path.join(normalize_path(output_dest), f'plot_exkurt_{wf_name}_{n_divs}_{threshold}'), types=output_type)
 
     for filetype in output_type:

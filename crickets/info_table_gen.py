@@ -1,4 +1,4 @@
-from analysis import normalize_path, create_info_table_dir, create_info_table
+from analysis import normalize_path, create_info_table
 import argparse
 # import configparser
 import logging
