@@ -353,7 +353,7 @@ def plot_tavg_power(info_table,
     fig, ax = plt.subplots()
     
     ax.set_xlim(f_start, f_stop)
-    ax.set_ylim(p_start, np.amax(pows)/50)
+    ax.set_ylim(p_start, p_stop)
     
     ax.set_xlabel('Frequency (MHz)')
     ax.set_ylabel('Time-Averaged Power (Counts)')
