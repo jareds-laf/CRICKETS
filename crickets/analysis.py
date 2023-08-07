@@ -387,21 +387,32 @@ def plot_tavg_power(info_table,
     for filetype in output_type:
         logging.info(f"tavg_power plot ({filetype}) generated at {os.path.join(normalize_path(output_dest), f'plot_tavg_power_{wf_name}_{n_divs}_{threshold}.{filetype}')}")
 
+    return fig, ax
+
 def plot_exkurt(info_table, n_divs=256, threshold=50,
-                       unfiltered=True, clean_chnls=True, rfi=False,
-                      f_start=2000, f_stop=4000,
-                      k_start=-5, k_stop=500,
-                      output_dest='', output_type='png'):
+                unfiltered=False, clean_chnls=True, rfi=True, thrsh=True,
+                f_start=2000, f_stop=4000,
+                k_start=-5, k_stop=500,
+                output_dest='', output_type='png'):
     """
     This function plots the excess kurtosis of each frequency channel for a specified waterfall object.
     Inputs:
         info_table: Location of the info table containing the frequencies and time-averaged powers (including file name)
+        
         n_divs: Number of frequency bins to divide the data into
+        
         threshold: Threshold for flagging a frequency bin as dirty
+        
         unfiltered: If true, plot the data before any RFI filtering has occurred
+        
         clean_chnls: If true, plot the data after RFI has been filtered out
+        
+        thrsh: If true, plot the exkurt threshold used to flag dirty channels
+
         rfi: If true, plot the channels that have been marked as RFI
+        
         output_dest: Location (including filename) to save output file
+        
         output_type: Filetype of output
     """
     wf_name = info_table[info_table.rfind('/')+12:-4]
@@ -415,7 +426,7 @@ def plot_exkurt(info_table, n_divs=256, threshold=50,
     ax.set_ylabel('Excess Kurtosis')
     ax.set_title(f"Excess Kurtosis of\n{wf_name} (n_divs={n_divs}, threshold={threshold})", y=1.06)
 
-    # Plot all data
+    # Plot all dataqq
     if unfiltered:
         ax.plot(bins, kurts, 'o', c='black', label='Unfiltered data') # Color is a nice black
     # Plot the low RFI channels
@@ -426,13 +437,16 @@ def plot_exkurt(info_table, n_divs=256, threshold=50,
     # Plot the high RFI channels
     if rfi:
         ax.plot(flagged_bins, flagged_kurts, '.', c='red', label='Dirty channels') # Color is a nice red
-    
+    # Plot exkurt threshold
+    if thrsh:
+        plt.axhline(y=threshold, color='black', linestyle='--', label='Threshold')
+
     # TODO: Change this condition... :)
     # if np.any([f_start, f_stop, k_start, k_stop]) != 0:
     ax.set_xlim(f_start, f_stop)
     ax.set_ylim(k_start, k_stop)
 
-    ax.legend(fancybox=True,shadow=True, loc='lower center', bbox_to_anchor=(0.5, 0.95), ncols=3)
+    ax.legend(fancybox=True, shadow=True, loc='upper left', bbox_to_anchor=(1, 1.02), ncols=1)
     # else:
     #     ax.legend(fancybox=True,shadow=True, loc='upper center', bbox_to_anchor=(0.5, 1.05), ncols=3)
     
@@ -441,3 +455,5 @@ def plot_exkurt(info_table, n_divs=256, threshold=50,
 
     for filetype in output_type:
         logging.info(f"exkurt plot ({filetype}) generated at {os.path.join(normalize_path(output_dest), f'plot_exkurt_{wf_name}_{n_divs}_{threshold}.{filetype}')}")
+
+    return fig, ax
